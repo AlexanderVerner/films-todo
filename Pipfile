@@ -1,0 +1,18 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+django = "*"
+django-constance = {version = "~=2.8.0", extras = ["database"]}
+envjson = "==20180731.1.1"
+pillow = "~=9.0"
+pipenv = "*"
+pytz = "*"
+psycopg2-binary = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.10"

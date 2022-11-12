@@ -1,0 +1,56 @@
+services:
+  nginx:
+    depends_on:
+    - web
+    environment:
+      SERVICE_80_NAME: nginx
+    env_file:
+      - _local_deploy/common.env
+      - .env
+    restart: on-failure
+    image: nginx:1.21
+    command: /bin/bash -c "exec nginx -g 'daemon off;'"
+    ports:
+    - 443:443
+    - 80:80
+    - 9000:9000
+    volumes_from:
+    - service:web:ro
+    volumes:
+    - ./_local_deploy/nginx.conf:/etc/nginx/conf.d/web.template:ro
+
+  web:
+    build: .
+    volumes:
+      - .:/app
+    ports:
+      - 8000:8000
+    depends_on:
+    - postgresdb
+    env_file:
+      - _local_deploy/common.env
+      - .env
+    environment:
+      SERVICE_8000_NAME: web
+    user: root
+    networks:
+      - default
+
+  postgresdb:
+    container_name: postgresdb
+    environment:
+      SERVICE_5432_NAME: postgresdb
+      POSTGRES_DB: template_database
+      POSTGRES_USER: alex
+      POSTGRES_PASSWORD: 6sjSFc1x9OJVycMmfEUtubdnnK8V
+    image: postgres:13-alpine
+    volumes:
+    - pgdata:/var/lib/postgresql/data:rw
+    networks:
+      - default
+
+volumes:
+  pgdata: {}
+
+networks:
+  default: {}
