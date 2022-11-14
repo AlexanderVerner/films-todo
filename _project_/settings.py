@@ -1,5 +1,5 @@
 from pathlib import Path
-from envjson import env_str, env_json_int, env_json_bool
+from envjson import env_str, env_json, env_json_int, env_json_bool
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -8,7 +8,7 @@ SECRET_KEY = 'setup_token_here_randomly'
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = env_json("ALLOWED_HOSTS")
 
 
 # Application definition
