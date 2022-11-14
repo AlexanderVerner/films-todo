@@ -39,9 +39,9 @@ services:
     container_name: postgresdb
     environment:
       SERVICE_5432_NAME: postgresdb
-      POSTGRES_DB: template_database
-      POSTGRES_USER: alex
-      POSTGRES_PASSWORD: 6sjSFc1x9OJVycMmfEUtubdnnK8V
+      POSTGRES_DB: film_todo
+      POSTGRES_USER: film_todo
+      POSTGRES_PASSWORD: hg6cn0i8QqcrfHWWwldYgkgv8U8K
     image: postgres:13-alpine
     volumes:
     - psgrdata:/var/lib/postgresql/data:rw
