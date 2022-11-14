@@ -13,7 +13,6 @@ services:
     ports:
     - 443:443
     - 80:80
-    - 9000:9000
     volumes_from:
     - service:web:ro
     volumes:
@@ -45,12 +44,12 @@ services:
       POSTGRES_PASSWORD: 6sjSFc1x9OJVycMmfEUtubdnnK8V
     image: postgres:13-alpine
     volumes:
-    - pgdata:/var/lib/postgresql/data:rw
+    - psgrdata:/var/lib/postgresql/data:rw
     networks:
       - default
 
 volumes:
-  pgdata: {}
+  psgrdata: {}
 
 networks:
   default: {}
