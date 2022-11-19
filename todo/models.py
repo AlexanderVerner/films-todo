@@ -5,6 +5,8 @@ from django.db import models
 TYPE_MEDIA = [
     ("movie", "Movie"),
     ("tv-series","Series"),
+    ("cartoon", "Cartoon"),
+    ("anime", "Anime"),
 ]
 
 class Movie(models.Model):
@@ -15,12 +17,13 @@ class Movie(models.Model):
     poster = models.URLField(max_length=400)
     directors = models.JSONField(default=[])
     actors = models.JSONField(default=[])
+    actors_photos = models.URLField(max_length=400)
     genres = models.JSONField(default=[])
     countries = models.JSONField(default=[])
     year = models.IntegerField(null=True)
     description = models.TextField(null=True)
     tagline = models.CharField(max_length=300)
-    age = models.IntegerField(null=True)
+    age_rating = models.IntegerField(null=True)
     budget = models.IntegerField(null=True)
     rating_kinopoisk = models.DecimalField(max_digits=6, decimal_places=4, null=True)
     kinopoisk_votes = models.IntegerField(null=True)
