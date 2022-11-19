@@ -1,10 +1,12 @@
+from os.path import dirname, join
 from pathlib import Path
 from envjson import env_str, env_json, env_json_int, env_json_bool
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+PROJECT_DIR = dirname(__file__)
 
 
-SECRET_KEY = 'setup_token_here_randomly'
+SECRET_KEY = 'eiCeiSh2aa01xaiGha0paig4isai5oon0rahnaethohWi2ophoophier8h'
 
 DEBUG = True
 
@@ -14,13 +16,13 @@ ALLOWED_HOSTS = env_json("ALLOWED_HOSTS")
 # Application definition
 
 INSTALLED_APPS = [
+    'todo.apps.TodoConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'constance',
     'constance.backends.database',
 ]
 
@@ -39,8 +41,9 @@ ROOT_URLCONF = '_project_.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates']
-        ,
+        "DIRS": [
+            join(PROJECT_DIR, "templates"),
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
