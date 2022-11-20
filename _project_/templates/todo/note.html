@@ -1,0 +1,12 @@
+{% extends 'todo/base.html' %}
+
+{% block content %}
+    <div class="container">
+        <h2>{{ film }}</h2>
+        <div>
+            <img src="{{ poster }}" width="332" height="500" alt="{{ film }}">
+            <h2>Год: {{ year }}</h2>
+            <p>Описание: {{ description }}</p>
+        </div>
+    </div>
+{% endblock %}

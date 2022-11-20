@@ -12,6 +12,7 @@ pipenv = "*"
 pytz = "*"
 psycopg2-binary = "*"
 requests = "~=2.28.0"
+djangorestframework = "~=3.14.0"
 
 [dev-packages]
 

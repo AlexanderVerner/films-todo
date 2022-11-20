@@ -1,10 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Film Todo</title>
-</head>
-<body>
-    <h1>Hello!</h1>
-</body>
-</html>
+{% extends 'todo/base.html' %}
+
+{% block content %}
+    <div class="container">
+        <h1>Hello!</h1>
+        <div>
+            <h3>Find your film here by kinopoisk id</h3>
+            <form action="{% url "todo:note" %}" method="post">
+                {% csrf_token %}
+                <input name="id_kinopoisk" placeholder="id kinopoisk">
+                <button type="submit">Искать</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}
