@@ -43,7 +43,7 @@ class Movie(models.Model):
 
 class Note(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    movie = models.OneToOneField(Movie, on_delete=models.CASCADE)
+    movie = models.OneToOneField(Movie, on_delete=models.RESTRICT)
     created = models.DateTimeField(auto_now_add=True, verbose_name='Date of creation')
     is_viewed = models.BooleanField(default=False)
     user_rating = models.PositiveIntegerField(default=0)
