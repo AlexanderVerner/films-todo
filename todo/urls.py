@@ -1,9 +1,8 @@
 from django.urls import path
-
-from . import views
+from todo.views import IndexView, NoteView
 
 app_name = 'todo'
 urlpatterns = [
-    path('', views.index, name='index'),
-    path('note', views.note_by_id, name='note'),
+    path('', IndexView.as_view(), name='index'),
+    path('note', NoteView.as_view(), name='preview_note'),
 ]

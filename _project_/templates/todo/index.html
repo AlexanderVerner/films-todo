@@ -1,15 +1,45 @@
 {% extends 'todo/base.html' %}
 
 {% block content %}
-    <div class="container">
-        <h1>Hello!</h1>
-        <div>
-            <h3>Find your film here by kinopoisk id</h3>
-            <form action="{% url "todo:note" %}" method="post">
-                {% csrf_token %}
-                <input name="id_kinopoisk" placeholder="id kinopoisk">
-                <button type="submit">Искать</button>
-            </form>
+    {% block search_block %}
+        <div class="container">
+            <div>
+                <h1>Find your film here by kinopoisk id</h1>
+                <form action="{% url "todo:preview_note" %}" method="post">
+                    {% csrf_token %}
+                    {{ form.id_kinopoisk }}
+                    <button type="submit">Search</button>
+                </form>
+            </div>
         </div>
-    </div>
+    {% endblock %}
+    {% block note_list %}
+        {% if note_list %}
+        <h2>A list with your saved movies</h2>
+        <section id="todo_list">
+            <div class="container">
+                <form action="{% url "todo:index" %}" method="get">
+                {% csrf_token %}
+                    <div class="row">
+                        <ul>
+                            {% for item in note_list %}
+                                <li>
+                                    <div class="menu-desc text-center">
+                                        <hr>
+                                        <h3>{{ item.movie.title }}</h3>
+                                            <div>
+                                                <img src="{{ item.movie.poster }}" width="165" height="250" alt="{{ item.movie.title }}">
+                                                <h3>Year: {{ item.movie.year }}</h3>
+                                                <p>Description: {{ item.movie.description }}</p>
+                                            </div>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </form>
+            </div>
+        </section>
+    {% endif %}
+    {% endblock %}
 {% endblock %}

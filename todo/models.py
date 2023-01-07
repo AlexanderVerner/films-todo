@@ -9,6 +9,7 @@ TYPE_MEDIA = [
     ("anime", "Anime"),
 ]
 
+
 class Movie(models.Model):
     id_kinopoisk = models.IntegerField(unique=True)
     type = models.CharField(choices=TYPE_MEDIA, max_length=50, blank=True)
@@ -17,7 +18,6 @@ class Movie(models.Model):
     poster = models.URLField(max_length=400)
     directors = models.JSONField(default=[])
     actors = models.JSONField(default=[])
-    actors_photos = models.URLField(max_length=400)
     genres = models.JSONField(default=[])
     countries = models.JSONField(default=[])
     year = models.IntegerField(null=True)
@@ -29,13 +29,16 @@ class Movie(models.Model):
     kinopoisk_votes = models.IntegerField(null=True)
     rating_imdb = models.DecimalField(max_digits=6, decimal_places=4, null=True)
     imdb_votes = models.IntegerField(null=True)
-    fees_world = models.IntegerField(null=True)
-    fees_russia = models.IntegerField(null=True)
-    premiere_world = models.DateField(null=True, blank=True)
-    premiere_russia = models.DateField(null=True, blank=True)
+    fees_world = models.IntegerField(null=True, verbose_name='Fees World')
+    fees_russia = models.IntegerField(null=True, verbose_name='Fees Russia')
+    premiere_world = models.DateField(null=True, blank=True, verbose_name='Premiere World')
+    premiere_russia = models.DateField(null=True, blank=True, verbose_name='Premiere Russia')
     frames = models.JSONField(default=[])
     screenshots = models.JSONField(default=[])
     seasons = models.IntegerField(null=True)
+    
+    def __str__(self):
+        return "%s - %s" % (self.id_kinopoisk, self.title)
 
 
 class Note(models.Model):
@@ -44,3 +47,6 @@ class Note(models.Model):
     created = models.DateTimeField(auto_now_add=True, verbose_name='Date of creation')
     is_viewed = models.BooleanField(default=False)
     user_rating = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return "%s - %s" % (self.user, self.movie.title)
