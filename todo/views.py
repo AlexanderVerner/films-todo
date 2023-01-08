@@ -82,3 +82,11 @@ class NoteView(TemplateView):
             request.session['year'] = content['year']
             request.session['poster'] = content['poster']
             return render(request, 'todo/note.html', content)
+
+
+class DetailView(TemplateView):
+    template_name = 'todo/detail.html'
+
+    def get(self, request, *args, **kwargs):
+        note = get_object_or_404(Note, pk=kwargs.get('note_id'))
+        return render(request, 'todo/detail.html', {'note': note})
