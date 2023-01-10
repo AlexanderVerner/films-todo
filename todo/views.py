@@ -1,6 +1,6 @@
 import requests
-from django.shortcuts import render, get_object_or_404
-from django.views.generic import TemplateView
+from django.shortcuts import render, get_object_or_404, redirect
+from django.views.generic import TemplateView, View
 from envjson import env_str
 from todo.models import Note, Movie
 from todo.forms import SearchForm
@@ -68,8 +68,8 @@ class IndexView(TemplateView):
         return context
 
 
-class NoteView(TemplateView):
-    template_name = 'todo/note.html'
+class PreView(TemplateView):
+    template_name = 'todo/preview.html'
 
     def post(self, request, *args, **kwargs):
         content = get_film_content(request, field="id")
@@ -81,7 +81,7 @@ class NoteView(TemplateView):
             request.session['description'] = content['description']
             request.session['year'] = content['year']
             request.session['poster'] = content['poster']
-            return render(request, 'todo/note.html', content)
+            return render(request, 'todo/preview.html', content)
 
 
 class DetailView(TemplateView):
@@ -90,3 +90,12 @@ class DetailView(TemplateView):
     def get(self, request, *args, **kwargs):
         note = get_object_or_404(Note, pk=kwargs.get('note_id'))
         return render(request, 'todo/detail.html', {'note': note})
+
+
+class DeleteView(View):
+
+    def post(self, request, *args, **kwargs):
+        note = get_object_or_404(Note, pk=kwargs.get('note_id'))
+        if note:
+            note.delete()
+        return redirect('todo:index')
