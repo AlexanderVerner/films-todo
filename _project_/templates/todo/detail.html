@@ -1,0 +1,18 @@
+{% extends 'todo/base.html' %}
+
+{% block detail %}
+    <div class="container">
+        <form action="{% url "todo:delete" note.id %}" method="post">
+            {% csrf_token %}
+            <h1>Detail about note</h1>
+            <h2>{{ note.movie.title }}</h2>
+            <div>
+                <img src="{{ note.movie.poster }}" width="332" height="500" alt="{{ note.movie.title }}">
+                <h2>Year: {{ note.movie.year }}</h2>
+                <p>Description: {{ note.movie.description }}</p>
+            </div>
+            <a href="{{request.META.HTTP_REFERER}}">Go back</a>
+            <button type="submit">Delete</button>
+        </form>
+    </div>
+{% endblock %}

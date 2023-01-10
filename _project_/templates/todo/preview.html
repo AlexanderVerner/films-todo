@@ -1,0 +1,17 @@
+{% extends 'todo/base.html' %}
+
+{% block note %}
+    <div class="container">
+        <form action="{% url "todo:index" %}" method="post">
+            {% csrf_token %}
+            <h2>{{ film }}</h2>
+            <a href="{{request.META.HTTP_REFERER}}">Go back</a>
+            <button type="submit">Add to the list</button>
+            <div>
+                <img src="{{ poster }}" width="332" height="500" alt="{{ film }}">
+                <h2>Year: {{ year }}</h2>
+                <p>Description: {{ description }}</p>
+            </div>
+        </form>
+    </div>
+{% endblock %}
