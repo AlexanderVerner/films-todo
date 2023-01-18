@@ -9,6 +9,7 @@
             <div>
                 <img src="{{ note.movie.poster }}" width="332" height="500" alt="{{ note.movie.title }}">
                 <h2>Year: {{ note.movie.year }}</h2>
+                <h3>Rating by kinopoisk: {{ note.movie.rating_kinopoisk }}</h3>
                 <p>Description: {{ note.movie.description }}</p>
             </div>
             <a href="{{request.META.HTTP_REFERER}}">Go back</a>
