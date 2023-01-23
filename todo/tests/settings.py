@@ -81,9 +81,6 @@ DATABASES = {
         "HOST": POSTGRES_HOST,
         "PORT": POSTGRES_PORT,
         "OPTIONS": {"sslmode": POSTGRES_SSL_MODE},
-        "TEST": {
-            "NAME": "test_todo",
-        },
     }
 }
 
