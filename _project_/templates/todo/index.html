@@ -4,7 +4,7 @@
     {% block search_block %}
         <div class="container">
             <div class="search-block">
-                <h1>Find your film here by kinopoisk id</h1>
+                <h1>Find your film here</h1>
                 <form action="{% url "todo:preview" %}" method="post">
                     {% csrf_token %}
                     {{ form.id_kinopoisk }}

@@ -25,7 +25,6 @@ class Migration(migrations.Migration):
                 ('poster', models.URLField(max_length=400)),
                 ('directors', models.JSONField(default=[])),
                 ('actors', models.JSONField(default=[])),
-                ('actors_photos', models.URLField(max_length=400)),
                 ('genres', models.JSONField(default=[])),
                 ('countries', models.JSONField(default=[])),
                 ('year', models.IntegerField(null=True)),

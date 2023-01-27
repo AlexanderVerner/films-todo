@@ -2,16 +2,26 @@
 
 {% block note %}
     <div class="container">
-        <form action="{% url "todo:index" %}" method="post">
-            {% csrf_token %}
-            <h2>{{ film }}</h2>
-            <a href="{{request.META.HTTP_REFERER}}">Go back</a>
-            <button type="submit">Add to the list</button>
-            <div>
-                <img src="{{ poster }}" width="332" height="500" alt="{{ film }}">
-                <h2>Year: {{ year }}</h2>
-                <p>Description: {{ description }}</p>
-            </div>
-        </form>
+        <a href="{{request.META.HTTP_REFERER}}">Go back</a>
+        <div class="row">
+            <ul>
+                {% for item in movies %}
+                {% csrf_token %}
+                <li>
+                    <div class="menu-desc text-center">
+                        <hr>
+                        <h3>{{ item.film }}</h3>
+                            <div>
+                                <img src="{{ item.poster }}" width="165" height="250" alt="{{ item.film }}">
+                                <h3>Year: {{ item.year }}</h3>
+                                <h4>Rating: {{ item.rating_kp }}</h4>
+                                <p>Description: {{ item.description }}</p>
+                            </div>
+                    </div>
+                </li>
+                    <a href="/preview/{{ item.id_kinopoisk }}">Add to the list</a>
+                {% endfor %}
+            </ul>
+        </div>
     </div>
 {% endblock %}
