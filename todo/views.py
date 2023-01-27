@@ -1,12 +1,13 @@
-from datetime import datetime
-
+import json
 import requests
+
+from datetime import datetime
+from django.contrib.auth.models import User
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import TemplateView, View
 from envjson import env_str
-from todo.models import Note, Movie
 from todo.forms import SearchForm
-from django.contrib.auth.models import User
+from todo.models import Note, Movie
 
 
 def get_note_list(self):
@@ -29,23 +30,18 @@ def get_preview_content(request, field, sort_field):
                 f'&sortField={sort_field}&sortType=-1&limit={limit}'
         )
         if response.status_code == 200:
-            docs = response.json().get('docs')
+            docs = json.loads(response.content).get('docs')
             content = []
             for item in docs:
-                film = item.get('name')
-                id_kinopoisk = item.get('id')
-                description = item.get('description')
-                year = item.get('year')
-                poster = item.get('poster')
-                poster = poster.get('url') if poster else None
-                rating_kp = item.get('rating').get('kp')
+                description = item.get('description', None)
                 if description is not None:
-                    info = {'film': film,
-                            'year': year,
+                    info = {'film': item.get('name'),
+                            'year': item.get('year'),
                             'description': description,
-                            'poster': poster,
-                            'id_kinopoisk': id_kinopoisk,
-                            'rating_kp': rating_kp}
+                            'poster': get_nested_object(item, 'poster', 'url',
+                                                        'https://i.ibb.co/sbw3sB7/no-poster.png'),
+                            'id_kinopoisk': item.get('id'),
+                            'rating_kp': get_nested_object(item, 'rating', 'kp')}
                     content.append(info)
             return content
         else:
@@ -58,36 +54,48 @@ def get_detail_film(id_kinopoisk):
     response = requests.get(
         url=f'{host_api}?token={token}&search={id_kinopoisk}&field=id')
     if response.status_code == 200:
-        movie = response.json()
+        movie = json.loads(response.content)
         persons = movie.get('persons')
-        actors = [{item.get('name'): item.get('enName')}
+        actors = [{item.get('name'): item.get('enName', None)}
                   for item in persons if item['enProfession'] == 'actor'][:15]
-        directors = [{item.get('name'): item.get('enName')}
+        directors = [{item.get('name'): item.get('enName', None)}
                      for item in persons if item['enProfession'] == 'director'][:5]
         content = {'id_kinopoisk': movie.get('id'),
                    'film': movie.get('name'),
-                   'film_alternative': movie.get('alternativeName'),
+                   'film_alternative': movie.get('alternativeName', None),
                    'type': movie.get('type'),
-                   'year': movie.get('year'),
-                   'slogan': movie.get('slogan'),
+                   'year': movie.get('year', None),
+                   'slogan': movie.get('slogan', None),
                    'description': movie.get('description'),
                    'genres': [item.get('name') for item in movie.get('genres')],
                    'age_rating': movie.get('ageRating'),
                    'countries': [item.get('name') for item in movie.get('countries')],
-                   'poster': movie.get('poster').get('url'),
-                   'rating_kp': movie.get('rating').get('kp'),
-                   'rating_imdb': movie.get('rating').get('imdb'),
-                   'votes_kp': movie.get('votes').get('kp'),
-                   'votes_imdb': movie.get('votes').get('imdb'),
-                   'premiere_world': datetime.fromisoformat((movie.get('premiere').get('world'))[:-1]).date(),
-                   'premiere_russia': datetime.fromisoformat((movie.get('premiere').get('russia'))[:-1]).date(),
-                   'watchability': movie.get('watchability').get('items'),
+                   'poster': get_nested_object(movie, 'poster', 'url'),
+                   'rating_kp': get_nested_object(movie, 'rating', 'kp'),
+                   'rating_imdb': get_nested_object(movie, 'rating', 'imdb'),
+                   'votes_kp': get_nested_object(movie, 'votes', 'kp'),
+                   'votes_imdb': get_nested_object(movie, 'votes', 'imdb'),
+                   'premiere_world': get_date_from_iso(movie, 'premiere', 'world'),
+                   'premiere_russia': get_date_from_iso(movie, 'premiere', 'russia'),
+                   'watchability': get_nested_object(movie, 'watchability', 'items'),
                    'actors': actors,
                    'directors': directors
                    }
         return content
     else:
         return {'message': 'Please, check your configuration.'}
+
+
+def get_nested_object(content, first_level, second_level, if_missing=None):
+    item = content.get(first_level)
+    return item.get(second_level) if item else if_missing
+
+
+def get_date_from_iso(content, first_level, second_level):
+    try:
+        return datetime.fromisoformat((content.get(first_level).get(second_level))[:-1]).date()
+    except TypeError:
+        return None
 
 
 class IndexView(TemplateView):
