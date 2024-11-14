@@ -1,27 +1,32 @@
 {% extends 'todo/base.html' %}
+{% load static %}
 
-{% block note %}
-    <div class="container">
-        <a href="{{request.META.HTTP_REFERER}}">Go back</a>
+{% block preview %}
+  <div class="main">
+    <section class="module bg-dark-60 shop-page-header" data-background="{% static 'todo/images/preview.jpg' %}">
+      <div class="container">
         <div class="row">
-            <ul>
-                {% for item in movies %}
-                {% csrf_token %}
-                <li>
-                    <div class="menu-desc text-center">
-                        <hr>
-                        <h3>{{ item.film }}</h3>
-                            <div>
-                                <img src="{{ item.poster }}" width="165" height="250" alt="{{ item.film }}">
-                                <h3>Year: {{ item.year }}</h3>
-                                <h4>Rating: {{ item.rating_kp }}</h4>
-                                <p>Description: {{ item.description }}</p>
-                            </div>
-                    </div>
-                </li>
-                    <a href="/preview/{{ item.id_kinopoisk }}">Add to the list</a>
-                {% endfor %}
-            </ul>
+          <div class="col-sm-6 col-sm-offset-3">
+            <h2 class="module-title font-alt">Found movies</h2>
+          </div>
         </div>
-    </div>
+      </div>
+    </section>
+    <hr class="divider-w">
+    <section class="module-small">
+      <div class="container">
+        <div class="row multi-columns-row">
+            {% for item in movies %}
+          <div class="col-sm-6 col-md-3 col-lg-3">
+            <div class="shop-item">
+              <div class="shop-item-image card-img-top"><img src="{{ item.poster }}" alt="{{ item.film }}"/>
+                <div class="shop-item-detail"><a class="btn btn-round btn-b" href="/preview/{{ item.id_kinopoisk }}"><span class="icon-clock"> Add to watch later</span></a></div>
+              </div>
+                <h4 class="shop-item-title"><a href="/preview/{{ item.id_kinopoisk }}"><div class="text-truncate">{{ item.description }}</div></a></h4>{{ item.year }} | Rating KP: {{ item.rating_kp }}
+            </div>
+          </div>
+            {% endfor %}
+        </div>
+      </div>
+    </section>
 {% endblock %}

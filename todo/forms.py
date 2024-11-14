@@ -2,5 +2,9 @@ from django import forms
 
 
 class SearchForm(forms.Form):
-    id_kinopoisk = forms.CharField(max_length=200, required=True,
-                                   widget=forms.TextInput(attrs={'placeholder': 'Enter title film'}))
+    title = forms.CharField(max_length=200,
+                            widget=forms.TextInput(attrs={'placeholder': 'Title',
+                                                          'class': 'form-control',
+                                                          'type': 'text',
+                                                          'required': 'required',
+                                                          'data-validation-required-message': 'Please enter name film.'}))

@@ -1,3 +1,4 @@
+import os
 from os.path import dirname, join
 from pathlib import Path
 from envjson import env_str, env_json, env_json_int, env_json_bool
@@ -118,7 +119,13 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATICFILES_DIRS = [
+    BASE_DIR / "_project_/static/",
+]
+
+STATIC_URL = '/static/'
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field

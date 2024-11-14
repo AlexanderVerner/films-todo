@@ -34,6 +34,7 @@ class Note(models.Model):
     created = models.DateTimeField(auto_now_add=True, verbose_name='Date of creation')
     is_viewed = models.BooleanField(default=False)
     user_rating = models.PositiveIntegerField(default=0)
+    # review = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return "%s - %s" % (self.user, self.movie.title)
