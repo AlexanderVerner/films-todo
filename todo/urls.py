@@ -1,5 +1,5 @@
 from django.urls import path
-from todo.views import IndexView, PreView, SaveView, DetailView, DeleteView#, SeenView
+from todo.views import IndexView, PreView, SaveView, DetailView, DeleteView, SeenView
 
 app_name = 'todo'
 urlpatterns = [
@@ -8,5 +8,5 @@ urlpatterns = [
     path('preview/<int:id_kinopoisk>', SaveView.as_view(), name='save'),
     path('detail/<int:note_id>', DetailView.as_view(), name='detail'),
     path('detail/<int:note_id>/delete', DeleteView.as_view(), name='delete'),
-    # path('review/<int:note_id>', SeenView.as_view(), name='review')
+    path('detail/<int:note_id>/seen', SeenView.as_view(), name='seen'),
 ]

@@ -4,28 +4,20 @@
 {% block detail %}
     <section class="module">
       <div class="container">
-          <form action="{% url "todo:delete" note.id %}" method="post">
-            {% csrf_token %}
         <div class="row">
-          <div class="col-sm-6 mb-sm-40"><a class="gallery" href="{{ note.movie.poster }}"><img src="{{ note.movie.poster }}" alt="{{ note.movie.title }}"/></a>
-            <ul class="product-gallery">
-              <li><a class="gallery" href="{% static 'todo/images/product-8.jpg' %}"></a><img src="{% static 'todo/images/product-8.jpg' %}" alt="Single Product"/></li>
-              <li><a class="gallery" href="{% static 'todo/images/product-9.jpg' %}"></a><img src="{% static 'todo/images/product-9.jpg' %}" alt="Single Product"/></li>
-              <li><a class="gallery" href="{% static 'todo/images/product-10.jpg' %}"></a><img src="{% static 'todo/images/product-10.jpg' %}" alt="Single Product"/></li>
-            </ul>
+          <div class="col-sm-6 mb-sm-40">
+            <a class="gallery" href="{{ note.movie.poster }}">
+              <img src="{{ note.movie.poster }}" alt="{{ note.movie.title }}"/>
+            </a>
           </div>
           <div class="col-sm-6">
             <div class="row">
               <div class="col-sm-12">
-                  {% if note.movie.title_alternative != None %}
+                  {% if note.movie.title_alternative %}
                    <h1 class="product-title font-alt">{{ note.movie.title }} / {{ note.movie.title_alternative }}</h1>
                   {% else %}
                    <h1 class="product-title font-alt">{{ note.movie.title }}</h1>
                   {% endif %}
-              </div>
-            </div>
-            <div class="row mb-20">
-              <div class="col-sm-12"><span><i class="fa fa-star star"></i></span><span><i class="fa fa-star star"></i></span><span><i class="fa fa-star star"></i></span><span><i class="fa fa-star star"></i></span><span><i class="fa fa-star star-off"></i></span><a class="open-tab section-scroll" href="#reviews"> rating</a>
               </div>
             </div>
             <div class="row mb-20">
@@ -36,10 +28,10 @@
             <div class="row mb-20">
               <div class="col-sm-12">
                   <div class="slogan">
-                      {% if note.movie.slogan != None %}
+                      {% if note.movie.slogan %}
                       <h3>{{ note.movie.slogan }}</h3>
                       {% else %}
-                      <h3> Слоган отсутствует</h3>
+                      <h3>Слоган отсутствует</h3>
                       {% endif %}
                   </div>
                 <div class="description">
@@ -49,8 +41,7 @@
             </div>
             <div class="row mb-20">
               <div class="col-sm-12">
-                <div class="product_meta">Genres: {{ note.movie.genres|join:", " }}
-                </div>
+                <div class="product_meta">Genres: {{ note.movie.genres|join:", " }}</div>
               </div>
             </div>
           </div>
@@ -61,8 +52,18 @@
                 <table class="table table-striped ds-table table-responsive">
                   <tbody>
                     <tr>
+                        <th>Status</th>
+                        <td>
+                          {% if note.is_viewed %}
+                            <span class="label label-success">Viewed</span>
+                          {% else %}
+                            <span class="label label-warning">Watch later</span>
+                          {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
                         <th>Age rating</th>
-                        <th>{{ note.movie.age_rating }}+</th>
+                        <td>{{ note.movie.age_rating }}+</td>
                     </tr>
                     <tr>
                       <td>Countries</td>
@@ -98,44 +99,33 @@
                 </table>
           </div>
         </div>
-              </form>
-                <div class="comment-form mt-30">
-                  <h4 class="comment-form-title font-alt">Add review</h4>
-                  <form action="{% url "todo:delete" note.id %}" method="post">
-                      {% csrf_token %}
-                      <div class="col-sm-4">
-                        <div class="form-group">
-                          <select class="form-control">
-                            <option selected="true" disabled="">My rating</option>
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                            <option value="4">4</option>
-                            <option value="5">5</option>
-                            <option value="6">6</option>
-                            <option value="7">7</option>
-                            <option value="8">8</option>
-                            <option value="9">9</option>
-                            <option value="10">10</option>
-                          </select>
-                        </div>
-                      </div>
-                      <div class="col-sm-12">
-                        <div class="form-group">
-                          <textarea class="form-control" id="" name="" rows="4" placeholder="Review"></textarea>
-                        </div>
-                      </div>
-                      <div class="col-sm-12">
-                        <div class="form-group">
-                            <!-- todo "todo:review" -->
-                            <form action="{% url "todo:detail" note.id %}" method="post">
-                                <button class="btn btn-primary btn-round" type="submit">Seen</button>
-                            </form>
-                          <button class="btn btn-danger btn-round" type="submit">Delete</button>
-                        </div>
-                      </div>
-                  </form>
-                </div>
+        <div class="comment-form mt-30">
+          <h4 class="comment-form-title font-alt">Actions</h4>
+          <div class="row">
+            <div class="col-sm-12">
+              <div class="form-group" style="margin-bottom: 15px;">
+                <form action="{% url 'todo:seen' note.id %}" method="post" style="display: inline;">
+                  {% csrf_token %}
+                  {% if note.is_viewed %}
+                    <button class="btn btn-warning btn-round" type="submit">
+                      <i class="fa fa-eye-slash"></i> Mark as unviewed
+                    </button>
+                  {% else %}
+                    <button class="btn btn-primary btn-round" type="submit">
+                      <i class="fa fa-eye"></i> Mark as viewed
+                    </button>
+                  {% endif %}
+                </form>
+                <form action="{% url 'todo:delete' note.id %}" method="post" style="display: inline; margin-left: 10px;">
+                  {% csrf_token %}
+                  <button class="btn btn-danger btn-round" type="submit" onclick="return confirm('Are you sure you want to delete this film?')">
+                    <i class="fa fa-trash"></i> Delete
+                  </button>
+                </form>
+              </div>
+            </div>
           </div>
+        </div>
+      </div>
     </section>
 {% endblock %}

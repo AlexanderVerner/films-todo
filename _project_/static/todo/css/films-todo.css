@@ -1,0 +1,53 @@
+/* Films TODO - custom styles */
+
+/* Make thumbnail a positioning context for the badge */
+.post-thumbnail {
+    position: relative;
+    overflow: hidden;
+}
+
+/* Viewed badge overlay on thumbnail */
+.viewed-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(76, 175, 80, 0.9);
+    color: #fff;
+    padding: 5px 12px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 600;
+    z-index: 10;
+}
+
+/* Dimmed look for viewed film cards */
+.post-viewed {
+    opacity: 0.7;
+}
+
+.post-viewed:hover {
+    opacity: 1;
+}
+
+/* Status labels in detail table */
+.label {
+    display: inline-block;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 3px;
+    color: #fff;
+}
+
+.label-success {
+    background-color: #4caf50;
+}
+
+.label-warning {
+    background-color: #ff9800;
+}
+
+/* Fix inline forms alignment */
+.comment-form .btn {
+    margin-right: 5px;
+}

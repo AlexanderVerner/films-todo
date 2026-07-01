@@ -173,10 +173,12 @@ class DeleteView(View):
             note.delete()
         return redirect('todo:index')
 
-# class SeenView(View):
-#
-#     def post(self, request, *args, **kwargs):
-#         note = get_object_or_404(Note, pk=kwargs.get('note_id'))
-#         review = kwargs.get('review')
-#         if note:
+
+class SeenView(View):
+
+    def post(self, request, *args, **kwargs):
+        note = get_object_or_404(Note, pk=kwargs.get('note_id'))
+        note.is_viewed = not note.is_viewed
+        note.save(update_fields=['is_viewed'])
+        return redirect('todo:detail', note_id=note.id)
 

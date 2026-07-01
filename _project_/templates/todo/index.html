@@ -45,45 +45,36 @@
                         <h2 class="module-title font-alt">Watch later</h2>
                     </div>
                 </div>
-{#                <div class="container">#}
-{#                    <div class="row">#}
-{#                      <div class="col-sm-12">#}
-{#                        <ul class="filter font-alt" id="filters">#}
-{#                          <li><a class="current wow fadeInUp" href="#" data-filter="*">All</a></li>#}
-{#                          <li><a class="wow fadeInUp" href="#" data-filter=".комедия" data-wow-delay="0.2s">Comedy</a></li>#}
-{#                          <li><a class="wow fadeInUp" href="#" data-filter=".боевик" data-wow-delay="0.4s">Action</a></li>#}
-{#                          <li><a class="wow fadeInUp" href="#" data-filter=".фантастика" data-wow-delay="0.6s">Fantastic</a></li>#}
-{#                          <li><a class="wow fadeInUp" href="#" data-filter=".триллер" data-wow-delay="0.6s">Thriller</a></li>#}
-{#                        </ul>#}
-{#                      </div>#}
-{#                    </div>#}
-{#                </div>#}
                 <div class="row multi-columns-row post-columns">
-                    <form action="{% url "todo:index" %}" method="get">
-{#                    <ul id="film-filter">#}
-                        {% for item in note_list %}
-                            <div class="col-sm-6 col-md-4 col-lg-4">
-                                <div class="post">
-                                    <div class="post-thumbnail index-img-top"><a href="/detail/{{ item.id }}"><img
-                                            src="{{ item.movie.poster }}" alt="{{ item.movie.title }}"/></a></div>
-                                    <div class="post-header font-alt">
-                                        <h2 class="post-title"><a
-                                                href="/detail/{{ item.id }}">{{ item.movie.title }}</a></h2>
-                                        <div class="post-meta">Add {{ item.created.date }}&nbsp;|
-                                            Year: {{ item.movie.year }} | Rating
-                                            KP: {{ item.movie.rating_kinopoisk }}</div>
-                                    </div>
-                                    <div class="post-entry text-truncate">
-                                        <p>{{ item.movie.description }}</p>
-                                    </div>
-                                    <div class="post-more"><a class="more-link" href="/detail/{{ item.id }}">Detail
-                                        about note</a></div>
+                    {% for item in note_list %}
+                        <div class="col-sm-6 col-md-4 col-lg-4">
+                            <div class="post {% if item.is_viewed %}post-viewed{% endif %}">
+                                <div class="post-thumbnail index-img-top">
+                                    <a href="/detail/{{ item.id }}">
+                                        <img src="{{ item.movie.poster }}" alt="{{ item.movie.title }}"/>
+                                        {% if item.is_viewed %}
+                                            <div class="viewed-badge"><i class="fa fa-check-circle"></i> Viewed</div>
+                                        {% endif %}
+                                    </a>
                                 </div>
+                                <div class="post-header font-alt">
+                                    <h2 class="post-title"><a href="/detail/{{ item.id }}">{{ item.movie.title }}</a></h2>
+                                    <div class="post-meta">
+                                        Added {{ item.created.date }}&nbsp;|
+                                        Year: {{ item.movie.year }} |
+                                        Rating KP: {{ item.movie.rating_kinopoisk }}
+                                        {% if item.is_viewed %}
+                                            | <span class="text-success"><i class="fa fa-eye"></i> Viewed</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="post-entry text-truncate">
+                                    <p>{{ item.movie.description }}</p>
+                                </div>
+                                <div class="post-more"><a class="more-link" href="/detail/{{ item.id }}">Detail about note</a></div>
                             </div>
-{#                            </li>#}
-                        {% endfor %}
-{#                    </ul>#}
-                    </form>
+                        </div>
+                    {% endfor %}
                 </div>
             </div>
         {% endif %}
