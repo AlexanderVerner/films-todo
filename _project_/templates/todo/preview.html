@@ -1,5 +1,6 @@
 {% extends 'todo/base.html' %}
 {% load static %}
+{% load todo_extras %}
 
 {% block preview %}
   <div class="main">
@@ -22,7 +23,7 @@
               <div class="shop-item-image card-img-top"><img src="{{ item.poster }}" alt="{{ item.film }}"/>
                 <div class="shop-item-detail"><a class="btn btn-round btn-b" href="/preview/{{ item.id_kinopoisk }}"><span class="icon-clock"> Add to watch later</span></a></div>
               </div>
-                <h4 class="shop-item-title"><a href="/preview/{{ item.id_kinopoisk }}"><div class="text-truncate">{{ item.description }}</div></a></h4>{{ item.year }} | Rating KP: {{ item.rating_kp }}
+                <h4 class="shop-item-title"><a href="/preview/{{ item.id_kinopoisk }}"><div class="text-truncate">{{ item.description }}</div></a></h4>{{ item.year }} | Rating KP: {{ item.rating_kp|format_rating }}
             </div>
           </div>
             {% endfor %}

@@ -1,5 +1,6 @@
 {% extends 'todo/base.html' %}
 {% load static %}
+{% load todo_extras %}
 
 {% block detail %}
     <section class="module">
@@ -8,11 +9,6 @@
             {% csrf_token %}
         <div class="row">
           <div class="col-sm-6 mb-sm-40"><a class="gallery" href="{{ note.movie.poster }}"><img src="{{ note.movie.poster }}" alt="{{ note.movie.title }}"/></a>
-            <ul class="product-gallery">
-              <li><a class="gallery" href="{% static 'todo/images/product-8.jpg' %}"></a><img src="{% static 'todo/images/product-8.jpg' %}" alt="Single Product"/></li>
-              <li><a class="gallery" href="{% static 'todo/images/product-9.jpg' %}"></a><img src="{% static 'todo/images/product-9.jpg' %}" alt="Single Product"/></li>
-              <li><a class="gallery" href="{% static 'todo/images/product-10.jpg' %}"></a><img src="{% static 'todo/images/product-10.jpg' %}" alt="Single Product"/></li>
-            </ul>
           </div>
           <div class="col-sm-6">
             <div class="row">
@@ -70,19 +66,19 @@
                     </tr>
                     <tr>
                       <td>Directors</td>
-                      <td>{{ note.movie.directors|join:", " }}</td>
+                      <td>{{ note.movie.directors|format_person_list }}</td>
                     </tr>
                     <tr>
                       <td>Actors</td>
-                      <td>{{ note.movie.actors|join:", " }}</td>
+                      <td>{{ note.movie.actors|format_person_list }}</td>
                     </tr>
                     <tr>
                       <td>Rating by kinopoisk</td>
-                      <td>{{ note.movie.rating_kinopoisk }} (based on {{ note.movie.kinopoisk_votes }} votes)</td>
+                      <td>{{ note.movie.rating_kinopoisk|format_rating }} (based on {{ note.movie.kinopoisk_votes }} votes)</td>
                     </tr>
                     <tr>
                       <td>Rating by IMDB</td>
-                      <td>{{ note.movie.rating_imdb }} (based on {{ note.movie.imdb_votes }} votes)</td>
+                      <td>{{ note.movie.rating_imdb|format_rating }} (based on {{ note.movie.imdb_votes }} votes)</td>
                     </tr>
                     <tr>
                       <td>Premiere</td>
@@ -91,7 +87,7 @@
                     {% if note.movie.watchability %}
                     <tr>
                         <td>Watchability</td>
-                        <td>{{ note.movie.watchability }}</td>
+                        <td>{{ note.movie.watchability|format_watchability }}</td>
                     </tr>
                     {% endif %}
                   </tbody>

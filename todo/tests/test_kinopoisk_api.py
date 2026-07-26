@@ -100,3 +100,5 @@ class KinopoiskApiMappingTests(TestCase):
         self.assertEqual(detail['id_kinopoisk'], 409424)
         self.assertEqual(detail['film'], 'Дюна')
         self.assertEqual(detail['genres'], ['фантастика'])
+        self.assertEqual(detail['actors'], ['Actor / Actor En'])
+        self.assertEqual(detail['directors'], ['Director / Dir En'])

@@ -1,4 +1,5 @@
 {% extends 'todo/base.html' %}
+{% load todo_extras %}
 
 {% block note %}
     <div class="container">
@@ -14,7 +15,7 @@
                             <div>
                                 <img src="{{ item.poster }}" width="165" height="250" alt="{{ item.film }}">
                                 <h3>Year: {{ item.year }}</h3>
-                                <h4>Rating: {{ item.rating_kp }}</h4>
+                                <h4>Rating: {{ item.rating_kp|format_rating }}</h4>
                                 <p>Description: {{ item.description }}</p>
                             </div>
                     </div>

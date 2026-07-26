@@ -1,5 +1,6 @@
 {% extends 'todo/base.html' %}
 {% load static %}
+{% load todo_extras %}
 
 {% block content %}
     <section class="home-section home-parallax home-fade home-full-height bg-dark-30" id="home"
@@ -71,7 +72,7 @@
                                                 href="/detail/{{ item.id }}">{{ item.movie.title }}</a></h2>
                                         <div class="post-meta">Add {{ item.created.date }}&nbsp;|
                                             Year: {{ item.movie.year }} | Rating
-                                            KP: {{ item.movie.rating_kinopoisk }}</div>
+                                            KP: {{ item.movie.rating_kinopoisk|format_rating }}</div>
                                     </div>
                                     <div class="post-entry text-truncate">
                                         <p>{{ item.movie.description }}</p>

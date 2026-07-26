@@ -127,6 +127,20 @@ def parse_age_rating(rating_age_limits):
     return int(digits) if digits else None
 
 
+def format_person_name(name_ru, name_en):
+    if name_ru and name_en and name_ru != name_en:
+        return f'{name_ru} / {name_en}'
+    return name_ru or name_en or ''
+
+
+def staff_by_profession(staff, profession_key, limit):
+    return [
+        format_person_name(person.get('nameRu'), person.get('nameEn'))
+        for person in staff
+        if person.get('professionKey') == profession_key
+    ][:limit]
+
+
 def build_film_detail(film_id):
     movie = fetch_film_details(film_id)
     if 'message' in movie:
@@ -137,16 +151,8 @@ def build_film_detail(film_id):
     external_sources = fetch_film_external_sources(film_id)
     premiere_world, premiere_russia = premiere_dates_from_distributions(distributions)
 
-    actors = [
-        {person.get('nameRu'): person.get('nameEn')}
-        for person in staff
-        if person.get('professionKey') == 'ACTOR'
-    ][:15]
-    directors = [
-        {person.get('nameRu'): person.get('nameEn')}
-        for person in staff
-        if person.get('professionKey') == 'DIRECTOR'
-    ][:5]
+    actors = staff_by_profession(staff, 'ACTOR', 15)
+    directors = staff_by_profession(staff, 'DIRECTOR', 5)
 
     return {
         'id_kinopoisk': movie.get('kinopoiskId'),

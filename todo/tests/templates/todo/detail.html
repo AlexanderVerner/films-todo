@@ -1,4 +1,5 @@
 {% extends 'todo/base.html' %}
+{% load todo_extras %}
 
 {% block detail %}
     <div class="container">
@@ -8,14 +9,14 @@
             <div>
                 <img src="{{ note.movie.poster }}" width="332" height="500" alt="{{ note.movie.title }}">
                 <h3>Year: {{ note.movie.year }}</h3>
-                <h3>Rating by kinopoisk: {{ note.movie.rating_kinopoisk }}</h3>
+                <h3>Rating by kinopoisk: {{ note.movie.rating_kinopoisk|format_rating }}</h3>
                 <h4>Slogan: {{ note.movie.slogan }} </h4>
                 <h4>Age rating: {{ note.movie.age_rating }}</h4>
                 <h4>Genres: {{ note.movie.genres|join:", " }}</h4>
                 <h4>Countries: {{ note.movie.countries|join:", " }}</h4>
                 <h4>Premiere world: {{ note.movie.premiere_world }}</h4>
-                <h4>Directors: {{ note.movie.directors|join:", " }}</h4>
-                <h4>Actors: {{ note.movie.actors|join:", " }}</h4>
+                <h4>Directors: {{ note.movie.directors|format_person_list }}</h4>
+                <h4>Actors: {{ note.movie.actors|format_person_list }}</h4>
                 <p>{{ note.movie.description }}</p>
             </div>
             <a href="{{request.META.HTTP_REFERER}}">Go back</a>
