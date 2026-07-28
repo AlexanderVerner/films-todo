@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import TemplateView, View
+from django.http import HttpResponse
 from todo.forms import SearchForm
 from todo.kinopoisk_api import build_film_detail, search_films
 from todo.models import Note, Movie
@@ -49,7 +50,11 @@ class PreView(TemplateView):
     def post(self, request, *args, **kwargs):
         content = get_preview_content(request)
         if isinstance(content, dict) and 'message' in content:
-            return render(request, 'todo/error.html', content)
+            return HttpResponse(
+                render(request, 'todo/error.html', content).content,
+                status=503,
+                content_type='text/html'
+            )
         return render(request, 'todo/preview.html', {'movies': content})
 
 
@@ -67,7 +72,11 @@ class SaveView(View):
         user = get_object_or_404(User, pk=1)
         content = get_detail_film(kwargs.get('id_kinopoisk'))
         if 'message' in content:
-            return render(request, 'todo/error.html', content)
+            return HttpResponse(
+                render(request, 'todo/error.html', content).content,
+                status=503,
+                content_type='text/html'
+            )
         entry_film, _ = Movie.objects.update_or_create(id_kinopoisk=content.get('id_kinopoisk'),
                                                        defaults={
                                                            'title': content.get('film'),

@@ -28,6 +28,8 @@ DUNE_DETAIL = {
     'directors': [],
 }
 
+API_ERROR = {'message': 'Please, check your configuration.'}
+
 
 class IndexViewTests(TestCase):
 
@@ -41,6 +43,22 @@ class PreViewTests(TestCase):
     def test_get_preview_view(self):
         r = self.client.get(reverse('todo:preview'))
         self.assertEqual(r.status_code, 200)
+
+    @patch('todo.views.get_preview_content')
+    def test_preview_search_success(self, mock_search):
+        mock_search.return_value = [
+            {'id_kinopoisk': 409424, 'film': 'Дюна'}
+        ]
+        r = self.client.post(reverse('todo:preview'), {'title': 'dune'})
+        self.assertEqual(r.status_code, 200)
+
+    @patch('todo.views.get_preview_content')
+    def test_preview_api_error_returns_503(self, mock_search):
+        """PreView.post should return 503 on API error"""
+        mock_search.return_value = API_ERROR
+        r = self.client.post(reverse('todo:preview'), {'title': 'dune'})
+        self.assertEqual(r.status_code, 503)
+        self.assertIn(b'Please, check your configuration', r.content)
 
     @patch('todo.views.build_film_detail', return_value=DUNE_DETAIL)
     def test_save_movie(self, _mock_detail):
@@ -58,3 +76,11 @@ class SaveViewTests(TestCase):
         movie = Movie.objects.get(id_kinopoisk=409424)
         self.assertEqual(r.status_code, 302)
         self.assertEqual(movie.title, 'Дюна')
+
+    @patch('todo.views.get_detail_film')
+    def test_save_api_error_returns_503(self, mock_detail):
+        """SaveView.get should return 503 on API error"""
+        mock_detail.return_value = API_ERROR
+        r = self.client.get(reverse('todo:save', kwargs={'id_kinopoisk': 409424}))
+        self.assertEqual(r.status_code, 503)
+        self.assertIn(b'Please, check your configuration', r.content)
