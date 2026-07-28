@@ -68,7 +68,7 @@ class DetailView(TemplateView):
 
 class SaveView(View):
 
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         user = get_object_or_404(User, pk=1)
         content = get_detail_film(kwargs.get('id_kinopoisk'))
         if 'message' in content:

@@ -62,7 +62,7 @@ class PreViewTests(TestCase):
 
     @patch('todo.views.build_film_detail', return_value=DUNE_DETAIL)
     def test_save_movie(self, _mock_detail):
-        r = self.client.get(reverse('todo:save', kwargs={'id_kinopoisk': 409424}))
+        r = self.client.post(reverse('todo:save', kwargs={'id_kinopoisk': 409424}))
         movie = Movie.objects.get(id_kinopoisk=409424)
         self.assertEqual(r.status_code, 302)
         self.assertEqual(movie.title, 'Дюна')
@@ -72,15 +72,15 @@ class SaveViewTests(TestCase):
 
     @patch('todo.views.build_film_detail', return_value=DUNE_DETAIL)
     def test_get_detail_film(self, _mock_detail):
-        r = self.client.get(reverse('todo:save', kwargs={'id_kinopoisk': 409424}))
+        r = self.client.post(reverse('todo:save', kwargs={'id_kinopoisk': 409424}))
         movie = Movie.objects.get(id_kinopoisk=409424)
         self.assertEqual(r.status_code, 302)
         self.assertEqual(movie.title, 'Дюна')
 
     @patch('todo.views.get_detail_film')
     def test_save_api_error_returns_503(self, mock_detail):
-        """SaveView.get should return 503 on API error"""
+        """SaveView.post should return 503 on API error"""
         mock_detail.return_value = API_ERROR
-        r = self.client.get(reverse('todo:save', kwargs={'id_kinopoisk': 409424}))
+        r = self.client.post(reverse('todo:save', kwargs={'id_kinopoisk': 409424}))
         self.assertEqual(r.status_code, 503)
         self.assertIn(b'Please, check your configuration', r.content)
