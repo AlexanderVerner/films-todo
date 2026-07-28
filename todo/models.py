@@ -8,10 +8,10 @@ class Movie(models.Model):
     title = models.CharField(max_length=200)
     title_alternative = models.CharField(max_length=200, blank=True, null=True)
     poster = models.URLField(max_length=400)
-    directors = models.JSONField(default=[])
-    actors = models.JSONField(default=[])
-    genres = models.JSONField(default=[])
-    countries = models.JSONField(default=[])
+    directors = models.JSONField(default=list)
+    actors = models.JSONField(default=list)
+    genres = models.JSONField(default=list)
+    countries = models.JSONField(default=list)
     year = models.IntegerField(null=True)
     description = models.TextField(blank=True, null=True)
     slogan = models.CharField(max_length=300, blank=True, null=True)
@@ -22,7 +22,7 @@ class Movie(models.Model):
     imdb_votes = models.IntegerField(null=True)
     premiere_world = models.DateField(null=True, blank=True, verbose_name='Premiere World')
     premiere_russia = models.DateField(null=True, blank=True, verbose_name='Premiere Russia')
-    watchability = models.JSONField(default=[], null=True)
+    watchability = models.JSONField(default=list, null=True)
     
     def __str__(self):
         return "%s - %s" % (self.id_kinopoisk, self.title)
