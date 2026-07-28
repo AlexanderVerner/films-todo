@@ -37,11 +37,14 @@ services:
 
   postgresdb:
     container_name: postgresdb
+    env_file:
+      - _local_deploy/common.env
+      - .env
     environment:
       SERVICE_5432_NAME: postgresdb
       POSTGRES_DB: film_todo
       POSTGRES_USER: film_todo
-      POSTGRES_PASSWORD: hg6cn0i8QqcrfHWWwldYgkgv8U8K
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     image: postgres:13-alpine
     volumes:
     - psgrdata:/var/lib/postgresql/data:rw
