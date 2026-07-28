@@ -6,6 +6,7 @@ from django.http import HttpResponse
 from todo.forms import SearchForm
 from todo.kinopoisk_api import build_film_detail, search_films
 from todo.models import Note, Movie
+from todo.serializers import movie_defaults_from_detail
 
 logger = logging.getLogger(__name__)
 
@@ -83,28 +84,10 @@ class SaveView(View):
                     status=503,
                     content_type='text/html'
                 )
-            entry_film, _ = Movie.objects.update_or_create(id_kinopoisk=content.get('id_kinopoisk'),
-                                                           defaults={
-                                                               'title': content.get('film'),
-                                                               'title_alternative': content.get('film_alternative'),
-                                                               'description': content.get('description'),
-                                                               'year': content.get('year'),
-                                                               'poster': content.get('poster'),
-                                                               'rating_kinopoisk': content.get('rating_kp'),
-                                                               'type': content.get('type'),
-                                                               'slogan': content.get('slogan'),
-                                                               'genres': content.get('genres'),
-                                                               'age_rating': content.get('age_rating'),
-                                                               'countries': content.get('countries'),
-                                                               'rating_imdb': content.get('rating_imdb'),
-                                                               'kinopoisk_votes': content.get('votes_kp'),
-                                                               'imdb_votes': content.get('votes_imdb'),
-                                                               'premiere_world': content.get('premiere_world'),
-                                                               'premiere_russia': content.get('premiere_russia'),
-                                                               'watchability': content.get('watchability'),
-                                                               'actors': content.get('actors'),
-                                                               'directors': content.get('directors')
-                                                           })
+            entry_film, _ = Movie.objects.update_or_create(
+                id_kinopoisk=content.get('id_kinopoisk'),
+                defaults=movie_defaults_from_detail(content)
+            )
             Note.objects.update_or_create(user=user, movie=entry_film)
             logger.info('film_saved', extra={'id_kinopoisk': content.get('id_kinopoisk'), 'title': content.get('film')})
             return redirect('todo:index')
