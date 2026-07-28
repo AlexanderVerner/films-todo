@@ -1,5 +1,6 @@
 from unittest.mock import patch
 
+from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
 from todo.models import Movie
@@ -60,18 +61,16 @@ class PreViewTests(TestCase):
         self.assertEqual(r.status_code, 503)
         self.assertIn(b'Please, check your configuration', r.content)
 
-    @patch('todo.views.build_film_detail', return_value=DUNE_DETAIL)
-    def test_save_movie(self, _mock_detail):
-        r = self.client.post(reverse('todo:save', kwargs={'id_kinopoisk': 409424}))
-        movie = Movie.objects.get(id_kinopoisk=409424)
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(movie.title, 'Дюна')
-
 
 class SaveViewTests(TestCase):
 
+    def setUp(self):
+        """Create User with pk=1 for testing SaveView"""
+        User.objects.create_user(username='testuser', password='testpass123')
+
     @patch('todo.views.build_film_detail', return_value=DUNE_DETAIL)
-    def test_get_detail_film(self, _mock_detail):
+    def test_post_save_movie(self, _mock_detail):
+        """SaveView.post should save movie and redirect on success"""
         r = self.client.post(reverse('todo:save', kwargs={'id_kinopoisk': 409424}))
         movie = Movie.objects.get(id_kinopoisk=409424)
         self.assertEqual(r.status_code, 302)
