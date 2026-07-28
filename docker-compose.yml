@@ -22,8 +22,8 @@ services:
     build: .
     volumes:
       - .:/app
-    expose:
-      - 8000
+    ports:
+      - 8000:8000
     depends_on:
     - postgresdb
     env_file:
@@ -44,7 +44,6 @@ services:
       SERVICE_5432_NAME: postgresdb
       POSTGRES_DB: film_todo
       POSTGRES_USER: film_todo
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     image: postgres:13-alpine
     volumes:
     - psgrdata:/var/lib/postgresql/data:rw

@@ -1,3 +1,4 @@
+from urllib.parse import urlparse
 from django import template
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
@@ -29,6 +30,18 @@ def format_person_list(people):
     return ', '.join(item for item in formatted if item)
 
 
+def _is_safe_url(url):
+    """Validate URL scheme to prevent XSS attacks."""
+    if not url:
+        return False
+    try:
+        parsed = urlparse(url)
+        scheme = parsed.scheme.lower()
+        return scheme in ('http', 'https')
+    except Exception:
+        return False
+
+
 @register.filter
 def format_watchability(sources):
     if not sources:
@@ -41,10 +54,17 @@ def format_watchability(sources):
         if not url:
             continue
         name = item.get('name') or item.get('platform') or url
-        links.append(
-            f'<a href="{escape(url)}" target="_blank" rel="noopener noreferrer">'
-            f'{escape(name)}</a>'
-        )
+        
+        # Validate URL scheme to prevent XSS
+        if _is_safe_url(url):
+            links.append(
+                f'<a href="{escape(url)}" target="_blank" rel="noopener noreferrer">'
+                f'{escape(name)}</a>'
+            )
+        else:
+            # For unsafe URLs, output platform name only
+            links.append(escape(name))
+    
     return mark_safe(', '.join(links))
 
 
