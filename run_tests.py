@@ -53,7 +53,7 @@ def run_tests(*, app, ns, makemigrations):
 
     # Init the app.
     if makemigrations:
-        management.call_command("makemigrations", "tests", interactive=False)
+        management.call_command("makemigrations", app, interactive=False)
 
     # Get test runner
     TestRunner = get_runner(settings)
