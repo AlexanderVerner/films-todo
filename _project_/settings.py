@@ -7,9 +7,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 PROJECT_DIR = dirname(__file__)
 
 
-SECRET_KEY = 'eiCeiSh2aa01xaiGha0paig4isai5oon0rahnaethohWi2ophoophier8h'
+SECRET_KEY = env_str("SECRET_KEY", "dev-insecure-secret-key-only-for-local-development")
 
-DEBUG = True
+DEBUG = env_json_bool("DEBUG", False)
 
 ALLOWED_HOSTS = env_json("ALLOWED_HOSTS")
 
