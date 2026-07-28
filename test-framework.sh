@@ -6,9 +6,45 @@ echo ""
 
 PASS=0; FAIL=0
 
-check() {
-    local desc=$1 condition=$2
-    if eval "$condition" > /dev/null 2>&1; then
+check_file() {
+    local desc=$1 filepath=$2
+    if [ -f "$filepath" ]; then
+        echo "  ✅ $desc"; ((PASS++))
+    else
+        echo "  ❌ $desc"; ((FAIL++))
+    fi
+}
+
+check_dir() {
+    local desc=$1 dirpath=$2
+    if [ -d "$dirpath" ]; then
+        echo "  ✅ $desc"; ((PASS++))
+    else
+        echo "  ❌ $desc"; ((FAIL++))
+    fi
+}
+
+check_executable() {
+    local desc=$1 filepath=$2
+    if [ -x "$filepath" ]; then
+        echo "  ✅ $desc"; ((PASS++))
+    else
+        echo "  ❌ $desc"; ((FAIL++))
+    fi
+}
+
+check_grep() {
+    local desc=$1 pattern=$2 filepath=$3
+    if grep -q "$pattern" "$filepath" 2>/dev/null; then
+        echo "  ✅ $desc"; ((PASS++))
+    else
+        echo "  ❌ $desc"; ((FAIL++))
+    fi
+}
+
+check_command() {
+    local desc=$1 cmd=$2
+    if bash -c "$cmd" > /dev/null 2>&1; then
         echo "  ✅ $desc"; ((PASS++))
     else
         echo "  ❌ $desc"; ((FAIL++))
@@ -16,15 +52,15 @@ check() {
 }
 
 echo "=== Структура файлов ==="
-check ".cursorignore"                        "[ -f .cursorignore ]"
-check ".cursor/rules/optimization.mdc"       "[ -f .cursor/rules/optimization.mdc ]"
-check ".cursor/context/base.md"              "[ -f .cursor/context/base.md ]"
-check ".cursor/snapshots/changes.md"         "[ -f .cursor/snapshots/changes.md ]"
-check ".cursor/plans/optimization-plan.md"   "[ -f .cursor/plans/optimization-plan.md ]"
-check ".cursor/plans/tasks/"                 "[ -d .cursor/plans/tasks ]"
-check ".cursor/plans/done/"                  "[ -d .cursor/plans/done ]"
-check ".cursor/scripts/bash/"               "[ -d .cursor/scripts/bash ]"
-check ".cursor/scripts/prompts/"            "[ -d .cursor/scripts/prompts ]"
+check_file ".cursorignore"                        ".cursorignore"
+check_file ".cursor/rules/optimization.mdc"       ".cursor/rules/optimization.mdc"
+check_file ".cursor/context/base.md"              ".cursor/context/base.md"
+check_file ".cursor/snapshots/changes.md"         ".cursor/snapshots/changes.md"
+check_file ".cursor/plans/optimization-plan.md"   ".cursor/plans/optimization-plan.md"
+check_dir ".cursor/plans/tasks/"                 ".cursor/plans/tasks"
+check_dir ".cursor/plans/done/"                  ".cursor/plans/done"
+check_dir ".cursor/scripts/bash/"               ".cursor/scripts/bash"
+check_dir ".cursor/scripts/prompts/"            ".cursor/scripts/prompts"
 
 echo ""
 echo "=== Промпты ==="
@@ -39,28 +75,28 @@ for name in \
     07-add-godoc \
     09-update-readme \
     run-next-task; do
-    check "$name.txt" "[ -f .cursor/scripts/prompts/${name}.txt ]"
+    check_file "$name.txt" ".cursor/scripts/prompts/${name}.txt"
 done
 
 echo ""
 echo "=== Bash скрипты ==="
-check "analyze-project-structure.sh" "[ -f .cursor/scripts/bash/analyze-project-structure.sh ]"
-check "find-todos.sh"                "[ -f .cursor/scripts/bash/find-todos.sh ]"
-check "snapshot-state.sh"           "[ -f .cursor/scripts/bash/snapshot-state.sh ]"
-check "check-coverage.sh"           "[ -f .cursor/scripts/bash/check-coverage.sh ]"
-check "Скрипты исполняемы"          "[ -x .cursor/scripts/bash/analyze-project-structure.sh ]"
+check_file "analyze-project-structure.sh" ".cursor/scripts/bash/analyze-project-structure.sh"
+check_file "find-todos.sh"                ".cursor/scripts/bash/find-todos.sh"
+check_file "snapshot-state.sh"           ".cursor/scripts/bash/snapshot-state.sh"
+check_file "check-coverage.sh"           ".cursor/scripts/bash/check-coverage.sh"
+check_executable "Скрипты исполняемы"          ".cursor/scripts/bash/analyze-project-structure.sh"
 
 echo ""
 echo "=== .cursorignore ==="
-check "node_modules/"   "grep -q 'node_modules' .cursorignore"
-check "vendor/"         "grep -q 'vendor/' .cursorignore"
-check ".git/"           "grep -q '.git/' .cursorignore"
-check ".cursor/plans/"  "grep -q '.cursor/plans/' .cursorignore"
+check_grep "node_modules/"   "node_modules" ".cursorignore"
+check_grep "vendor/"         "vendor/" ".cursorignore"
+check_grep ".git/"           ".git/" ".cursorignore"
+check_grep ".cursor/plans/"  ".cursor/plans/" ".cursorignore"
 
 echo ""
 echo "=== Функциональный тест ==="
-check "analyze-project-structure.sh запускается" "bash .cursor/scripts/bash/analyze-project-structure.sh"
-check "find-todos.sh запускается"               "bash .cursor/scripts/bash/find-todos.sh"
+check_command "analyze-project-structure.sh запускается" "bash .cursor/scripts/bash/analyze-project-structure.sh"
+check_command "find-todos.sh запускается"               "bash .cursor/scripts/bash/find-todos.sh"
 
 echo ""
 echo "==============================="
