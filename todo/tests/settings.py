@@ -72,10 +72,13 @@ POSTGRES_USE_TLS = env_json_bool("POSTGRES_USE_TLS", False)
 
 POSTGRES_SSL_MODE = "require" if POSTGRES_USE_TLS else None
 
+# For tests: use separate database to avoid overwriting production data
+TEST_POSTGRES_DATABASE_NAME = env_str("TEST_POSTGRES_DATABASE_NAME", f"{POSTGRES_DATABASE_NAME}_test")
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": POSTGRES_DATABASE_NAME,
+        "NAME": TEST_POSTGRES_DATABASE_NAME,
         "USER": POSTGRES_USER,
         "PASSWORD": POSTGRES_PASSWORD,
         "HOST": POSTGRES_HOST,

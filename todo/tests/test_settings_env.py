@@ -75,3 +75,17 @@ def test_debug_default_false_when_not_set(monkeypatch):
     
     # Should default to False
     assert settings.DEBUG is False
+
+
+def test_test_database_isolation():
+    """Test that test settings use isolated database name to prevent data loss."""
+    from todo.tests import settings as test_settings
+    
+    # Test database should use separate name, not production database
+    test_db_name = test_settings.DATABASES["default"]["NAME"]
+    
+    # Should contain "_test" suffix or be explicitly set via TEST_POSTGRES_DATABASE_NAME
+    assert "_test" in test_db_name or test_db_name != test_settings.POSTGRES_DATABASE_NAME
+    
+    # Verify it's different from production database name
+    assert test_db_name != test_settings.POSTGRES_DATABASE_NAME
