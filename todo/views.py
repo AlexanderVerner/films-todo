@@ -10,13 +10,9 @@ from todo.models import Note, Movie
 logger = logging.getLogger(__name__)
 
 
-def get_note_list(self):
-    try:
-        notes_list = Note.objects.all()
-    except Note.DoesNotExist:
-        return None
-    else:
-        return notes_list
+def get_note_list():
+    """Fetch all notes with related movies to avoid N+1 queries."""
+    return Note.objects.select_related('movie').all()
 
 
 def get_preview_content(request):
@@ -40,7 +36,7 @@ class IndexView(TemplateView):
         return render(request, 'todo/index.html', self.get_context())
 
     def get_context(self):
-        notes = get_note_list(self)
+        notes = get_note_list()
         form = SearchForm()
         context = {'note_list': notes,
                    'form': form}
