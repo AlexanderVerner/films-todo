@@ -1,10 +1,18 @@
 import json
+import logging
 from datetime import datetime
 
 import requests
 from envjson import env_str
 
 NO_POSTER = 'https://i.ibb.co/sbw3sB7/no-poster.png'
+
+logger = logging.getLogger(__name__)
+
+
+class KinopoiskApiError(Exception):
+    """Custom exception for Kinopoisk API errors."""
+    pass
 
 
 def _api_base_url():
@@ -16,24 +24,41 @@ def _api_headers():
 
 
 def kinopoisk_get(path, params=None):
-    response = requests.get(
-        url=f'{_api_base_url()}{path}',
-        headers=_api_headers(),
-        params=params,
-        timeout=30,
-    )
-    return response
+    try:
+        response = requests.get(
+            url=f'{_api_base_url()}{path}',
+            headers=_api_headers(),
+            params=params,
+            timeout=30,
+        )
+        response.raise_for_status()
+        return response
+    except requests.RequestException as err:
+        logger.error(
+            'kinopoisk_api_error',
+            extra={
+                'url': f'{_api_base_url()}{path}',
+                'params': params,
+                'error': str(err),
+                'status_code': getattr(err.response, 'status_code', None) if hasattr(err, 'response') else None,
+            }
+        )
+        raise KinopoiskApiError(f"Failed to fetch from Kinopoisk API: {str(err)}") from err
 
 
 def search_films(keyword, limit):
-    response = kinopoisk_get(
-        '/api/v2.1/films/search-by-keyword',
-        params={'keyword': keyword, 'page': 1},
-    )
-    if response.status_code != 200:
+    try:
+        response = kinopoisk_get(
+            '/api/v2.1/films/search-by-keyword',
+            params={'keyword': keyword, 'page': 1},
+        )
+        films = json.loads(response.content).get('films') or []
+    except (KinopoiskApiError, json.JSONDecodeError) as err:
+        logger.error(
+            'search_films_error',
+            extra={'keyword': keyword, 'error': str(err)}
+        )
         return {'message': 'Please, check your configuration.'}
-
-    films = json.loads(response.content).get('films') or []
     content = []
     for item in films[: int(limit)]:
         description = item.get('description')
@@ -61,34 +86,54 @@ def search_films(keyword, limit):
 
 
 def fetch_film_details(film_id):
-    response = kinopoisk_get(f'/api/v2.2/films/{film_id}')
-    if response.status_code != 200:
+    try:
+        response = kinopoisk_get(f'/api/v2.2/films/{film_id}')
+        return json.loads(response.content)
+    except (KinopoiskApiError, json.JSONDecodeError) as err:
+        logger.error(
+            'fetch_film_details_error',
+            extra={'film_id': film_id, 'error': str(err)}
+        )
         return {'message': 'Please, check your configuration.'}
-    return json.loads(response.content)
 
 
 def fetch_film_staff(film_id):
-    response = kinopoisk_get('/api/v1/staff', params={'filmId': film_id})
-    if response.status_code != 200:
+    try:
+        response = kinopoisk_get('/api/v1/staff', params={'filmId': film_id})
+        return json.loads(response.content)
+    except (KinopoiskApiError, json.JSONDecodeError) as err:
+        logger.error(
+            'fetch_film_staff_error',
+            extra={'film_id': film_id, 'error': str(err)}
+        )
         return []
-    return json.loads(response.content)
 
 
 def fetch_film_distributions(film_id):
-    response = kinopoisk_get(f'/api/v2.2/films/{film_id}/distributions')
-    if response.status_code != 200:
+    try:
+        response = kinopoisk_get(f'/api/v2.2/films/{film_id}/distributions')
+        return json.loads(response.content)
+    except (KinopoiskApiError, json.JSONDecodeError) as err:
+        logger.error(
+            'fetch_film_distributions_error',
+            extra={'film_id': film_id, 'error': str(err)}
+        )
         return {}
-    return json.loads(response.content)
 
 
 def fetch_film_external_sources(film_id):
-    response = kinopoisk_get(
-        f'/api/v2.2/films/{film_id}/external_sources',
-        params={'page': 1},
-    )
-    if response.status_code != 200:
+    try:
+        response = kinopoisk_get(
+            f'/api/v2.2/films/{film_id}/external_sources',
+            params={'page': 1},
+        )
+        return json.loads(response.content)
+    except (KinopoiskApiError, json.JSONDecodeError) as err:
+        logger.error(
+            'fetch_film_external_sources_error',
+            extra={'film_id': film_id, 'error': str(err)}
+        )
         return {}
-    return json.loads(response.content)
 
 
 def premiere_dates_from_distributions(distributions):

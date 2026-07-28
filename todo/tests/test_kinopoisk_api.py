@@ -2,12 +2,19 @@ import json
 from datetime import date
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
+import requests
 
 from todo.kinopoisk_api import (
     build_film_detail,
+    KinopoiskApiError,
+    kinopoisk_get,
     premiere_dates_from_distributions,
     search_films,
     watchability_from_external_sources,
+    fetch_film_details,
+    fetch_film_staff,
+    fetch_film_distributions,
+    fetch_film_external_sources,
 )
 
 
@@ -102,3 +109,80 @@ class KinopoiskApiMappingTests(TestCase):
         self.assertEqual(detail['genres'], ['фантастика'])
         self.assertEqual(detail['actors'], ['Actor / Actor En'])
         self.assertEqual(detail['directors'], ['Director / Dir En'])
+
+    @patch('todo.kinopoisk_api.requests.get')
+    def test_kinopoisk_get_handles_connection_error(self, mock_get):
+        mock_get.side_effect = requests.ConnectionError('Connection failed')
+        
+        with self.assertRaises(KinopoiskApiError) as ctx:
+            kinopoisk_get('/api/v2.1/films/search', params={'keyword': 'test'})
+        
+        self.assertIn('Failed to fetch from Kinopoisk API', str(ctx.exception))
+        self.assertIsNotNone(ctx.exception.__cause__)
+
+    @patch('todo.kinopoisk_api.requests.get')
+    def test_kinopoisk_get_handles_timeout(self, mock_get):
+        mock_get.side_effect = requests.Timeout('Request timeout')
+        
+        with self.assertRaises(KinopoiskApiError) as ctx:
+            kinopoisk_get('/api/v2.1/films/search', params={'keyword': 'test'})
+        
+        self.assertIn('Failed to fetch from Kinopoisk API', str(ctx.exception))
+        self.assertIsNotNone(ctx.exception.__cause__)
+
+    @patch('todo.kinopoisk_api.requests.get')
+    def test_kinopoisk_get_handles_http_error(self, mock_get):
+        mock_response = MagicMock()
+        mock_response.raise_for_status.side_effect = requests.HTTPError('404 Not Found')
+        mock_get.return_value = mock_response
+        
+        with self.assertRaises(KinopoiskApiError) as ctx:
+            kinopoisk_get('/api/v2.1/films/999999')
+        
+        self.assertIn('Failed to fetch from Kinopoisk API', str(ctx.exception))
+        self.assertIsNotNone(ctx.exception.__cause__)
+
+    @patch('todo.kinopoisk_api.kinopoisk_get')
+    def test_search_films_handles_json_decode_error(self, mock_get):
+        mock_get.return_value = MagicMock(
+            status_code=200,
+            content=b'invalid json {',
+        )
+        
+        result = search_films('test', 15)
+        self.assertEqual(result, {'message': 'Please, check your configuration.'})
+
+    @patch('todo.kinopoisk_api.kinopoisk_get')
+    def test_search_films_handles_api_error(self, mock_get):
+        mock_get.side_effect = KinopoiskApiError('API Error')
+        
+        result = search_films('test', 15)
+        self.assertEqual(result, {'message': 'Please, check your configuration.'})
+
+    @patch('todo.kinopoisk_api.kinopoisk_get')
+    def test_fetch_film_details_handles_api_error(self, mock_get):
+        mock_get.side_effect = KinopoiskApiError('API Error')
+        
+        result = fetch_film_details(409424)
+        self.assertEqual(result, {'message': 'Please, check your configuration.'})
+
+    @patch('todo.kinopoisk_api.kinopoisk_get')
+    def test_fetch_film_staff_handles_api_error(self, mock_get):
+        mock_get.side_effect = KinopoiskApiError('API Error')
+        
+        result = fetch_film_staff(409424)
+        self.assertEqual(result, [])
+
+    @patch('todo.kinopoisk_api.kinopoisk_get')
+    def test_fetch_film_distributions_handles_api_error(self, mock_get):
+        mock_get.side_effect = KinopoiskApiError('API Error')
+        
+        result = fetch_film_distributions(409424)
+        self.assertEqual(result, {})
+
+    @patch('todo.kinopoisk_api.kinopoisk_get')
+    def test_fetch_film_external_sources_handles_api_error(self, mock_get):
+        mock_get.side_effect = KinopoiskApiError('API Error')
+        
+        result = fetch_film_external_sources(409424)
+        self.assertEqual(result, {})
