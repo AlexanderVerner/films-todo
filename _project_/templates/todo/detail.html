@@ -5,23 +5,30 @@
 {% block detail %}
     <section class="module">
       <div class="container">
-          <form action="{% url "todo:delete" note.id %}" method="post">
-            {% csrf_token %}
         <div class="row">
-          <div class="col-sm-6 mb-sm-40"><a class="gallery" href="{{ note.movie.poster }}"><img src="{{ note.movie.poster }}" alt="{{ note.movie.title }}"/></a>
+          <div class="col-sm-6 mb-sm-40">
+            <a class="gallery" href="{{ note.movie.poster }}">
+              <img src="{{ note.movie.poster }}" alt="{{ note.movie.title }}"/>
+            </a>
           </div>
           <div class="col-sm-6">
             <div class="row">
               <div class="col-sm-12">
-                  {% if note.movie.title_alternative != None %}
-                   <h1 class="product-title font-alt">{{ note.movie.title }} / {{ note.movie.title_alternative }}</h1>
-                  {% else %}
-                   <h1 class="product-title font-alt">{{ note.movie.title }}</h1>
-                  {% endif %}
+                {% if note.movie.title_alternative != None %}
+                  <h1 class="product-title font-alt">{{ note.movie.title }} / {{ note.movie.title_alternative }}</h1>
+                {% else %}
+                  <h1 class="product-title font-alt">{{ note.movie.title }}</h1>
+                {% endif %}
               </div>
             </div>
             <div class="row mb-20">
-              <div class="col-sm-12"><span><i class="fa fa-star star"></i></span><span><i class="fa fa-star star"></i></span><span><i class="fa fa-star star"></i></span><span><i class="fa fa-star star"></i></span><span><i class="fa fa-star star-off"></i></span><a class="open-tab section-scroll" href="#reviews"> rating</a>
+              <div class="col-sm-12">
+                <span><i class="fa fa-star star"></i></span>
+                <span><i class="fa fa-star star"></i></span>
+                <span><i class="fa fa-star star"></i></span>
+                <span><i class="fa fa-star star"></i></span>
+                <span><i class="fa fa-star star-off"></i></span>
+                <a class="open-tab section-scroll" href="#reviews"> rating</a>
               </div>
             </div>
             <div class="row mb-20">
@@ -31,13 +38,13 @@
             </div>
             <div class="row mb-20">
               <div class="col-sm-12">
-                  <div class="slogan">
-                      {% if note.movie.slogan != None %}
-                      <h3>{{ note.movie.slogan }}</h3>
-                      {% else %}
-                      <h3> Слоган отсутствует</h3>
-                      {% endif %}
-                  </div>
+                <div class="slogan">
+                  {% if note.movie.slogan != None %}
+                    <h3>{{ note.movie.slogan }}</h3>
+                  {% else %}
+                    <h3>Слоган отсутствует</h3>
+                  {% endif %}
+                </div>
                 <div class="description">
                   <p>{{ note.movie.description }}</p>
                 </div>
@@ -45,93 +52,100 @@
             </div>
             <div class="row mb-20">
               <div class="col-sm-12">
-                <div class="product_meta">Genres: {{ note.movie.genres|join:", " }}
-                </div>
+                <div class="product_meta">Genres: {{ note.movie.genres|join:", " }}</div>
               </div>
             </div>
           </div>
         </div>
+
         <div class="row mt-70">
           <div class="col-sm-12">
-              <h4 class="comment-form-title font-alt">About movie</h4>
-                <table class="table table-striped ds-table table-responsive">
-                  <tbody>
-                    <tr>
-                        <th>Age rating</th>
-                        <th>{{ note.movie.age_rating }}+</th>
-                    </tr>
-                    <tr>
-                      <td>Countries</td>
-                      <td>{{ note.movie.countries|join:", " }}</td>
-                    </tr>
-                    <tr>
-                      <td>Directors</td>
-                      <td>{{ note.movie.directors|format_person_list }}</td>
-                    </tr>
-                    <tr>
-                      <td>Actors</td>
-                      <td>{{ note.movie.actors|format_person_list }}</td>
-                    </tr>
-                    <tr>
-                      <td>Rating by kinopoisk</td>
-                      <td>{{ note.movie.rating_kinopoisk|format_rating }} (based on {{ note.movie.kinopoisk_votes }} votes)</td>
-                    </tr>
-                    <tr>
-                      <td>Rating by IMDB</td>
-                      <td>{{ note.movie.rating_imdb|format_rating }} (based on {{ note.movie.imdb_votes }} votes)</td>
-                    </tr>
-                    <tr>
-                      <td>Premiere</td>
-                      <td>{{ note.movie.premiere_world }}</td>
-                    </tr>
-                    {% if note.movie.watchability %}
-                    <tr>
-                        <td>Watchability</td>
-                        <td>{{ note.movie.watchability|format_watchability }}</td>
-                    </tr>
-                    {% endif %}
-                  </tbody>
-                </table>
+            <h4 class="comment-form-title font-alt">About movie</h4>
+            <table class="table table-striped ds-table table-responsive">
+              <tbody>
+                <tr>
+                  <th>Age rating</th>
+                  <th>{{ note.movie.age_rating }}+</th>
+                </tr>
+                <tr>
+                  <td>Countries</td>
+                  <td>{{ note.movie.countries|join:", " }}</td>
+                </tr>
+                <tr>
+                  <td>Directors</td>
+                  <td>{{ note.movie.directors|format_person_list }}</td>
+                </tr>
+                <tr>
+                  <td>Actors</td>
+                  <td>{{ note.movie.actors|format_person_list }}</td>
+                </tr>
+                <tr>
+                  <td>Rating by kinopoisk</td>
+                  <td>{{ note.movie.rating_kinopoisk|format_rating }} (based on {{ note.movie.kinopoisk_votes }} votes)</td>
+                </tr>
+                <tr>
+                  <td>Rating by IMDB</td>
+                  <td>{{ note.movie.rating_imdb|format_rating }} (based on {{ note.movie.imdb_votes }} votes)</td>
+                </tr>
+                <tr>
+                  <td>Premiere</td>
+                  <td>{{ note.movie.premiere_world }}</td>
+                </tr>
+                {% if note.movie.watchability %}
+                <tr>
+                  <td>Watchability</td>
+                  <td>{{ note.movie.watchability|format_watchability }}</td>
+                </tr>
+                {% endif %}
+              </tbody>
+            </table>
           </div>
         </div>
-              </form>
-                <div class="comment-form mt-30">
-                  <h4 class="comment-form-title font-alt">Add review</h4>
-                  <form action="{% url "todo:delete" note.id %}" method="post">
-                      {% csrf_token %}
-                      <div class="col-sm-4">
-                        <div class="form-group">
-                          <select class="form-control">
-                            <option selected="true" disabled="">My rating</option>
-                            <option value="1">1</option>
-                            <option value="2">2</option>
-                            <option value="3">3</option>
-                            <option value="4">4</option>
-                            <option value="5">5</option>
-                            <option value="6">6</option>
-                            <option value="7">7</option>
-                            <option value="8">8</option>
-                            <option value="9">9</option>
-                            <option value="10">10</option>
-                          </select>
-                        </div>
-                      </div>
-                      <div class="col-sm-12">
-                        <div class="form-group">
-                          <textarea class="form-control" id="" name="" rows="4" placeholder="Review"></textarea>
-                        </div>
-                      </div>
-                      <div class="col-sm-12">
-                        <div class="form-group">
-                            <!-- todo "todo:review" -->
-                            <form action="{% url "todo:detail" note.id %}" method="post">
-                                <button class="btn btn-primary btn-round" type="submit">Seen</button>
-                            </form>
-                          <button class="btn btn-danger btn-round" type="submit">Delete</button>
-                        </div>
-                      </div>
-                  </form>
-                </div>
+
+        <div class="comment-form mt-30">
+          <h4 class="comment-form-title font-alt">Add review</h4>
+          <form action="{% url "todo:detail" note.id %}" method="post">
+            {% csrf_token %}
+            <div class="col-sm-4">
+              <div class="form-group">
+                <select class="form-control">
+                  <option selected="true" disabled="">My rating</option>
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5">5</option>
+                  <option value="6">6</option>
+                  <option value="7">7</option>
+                  <option value="8">8</option>
+                  <option value="9">9</option>
+                  <option value="10">10</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-sm-12">
+              <div class="form-group">
+                <textarea class="form-control" id="" name="" rows="4" placeholder="Review"></textarea>
+              </div>
+            </div>
+            <div class="col-sm-12">
+              <div class="form-group">
+                <button class="btn btn-primary btn-round" type="submit">Seen</button>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <form action="{% url "todo:delete" note.id %}" method="post">
+          {% csrf_token %}
+          <div class="comment-form mt-30">
+            <div class="col-sm-12">
+              <div class="form-group">
+                <button class="btn btn-danger btn-round" type="submit">Delete</button>
+              </div>
+            </div>
           </div>
+        </form>
+      </div>
     </section>
 {% endblock %}
