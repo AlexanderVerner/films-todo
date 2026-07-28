@@ -46,6 +46,28 @@ def kinopoisk_get(path, params=None):
         raise KinopoiskApiError(f"Failed to fetch from Kinopoisk API: {str(err)}") from err
 
 
+def _decode_json_response(response, default_value=None, event_name=None):
+    """Safely decode JSON response and handle errors with logging.
+    
+    Args:
+        response: Response object with content to decode
+        default_value: Value to return on JSON decode error (defaults to None)
+        event_name: Event name for logging context
+    
+    Returns:
+        Decoded JSON content or default_value on error
+    """
+    try:
+        return json.loads(response.content)
+    except json.JSONDecodeError as err:
+        if event_name:
+            logger.error(
+                event_name,
+                extra={'error': str(err)}
+            )
+        return default_value
+
+
 def search_films(keyword, limit):
     try:
         response = kinopoisk_get(
@@ -88,8 +110,12 @@ def search_films(keyword, limit):
 def fetch_film_details(film_id):
     try:
         response = kinopoisk_get(f'/api/v2.2/films/{film_id}')
-        return json.loads(response.content)
-    except (KinopoiskApiError, json.JSONDecodeError) as err:
+        return _decode_json_response(
+            response,
+            default_value={'message': 'Please, check your configuration.'},
+            event_name='fetch_film_details_error'
+        )
+    except KinopoiskApiError as err:
         logger.error(
             'fetch_film_details_error',
             extra={'film_id': film_id, 'error': str(err)}
@@ -100,8 +126,12 @@ def fetch_film_details(film_id):
 def fetch_film_staff(film_id):
     try:
         response = kinopoisk_get('/api/v1/staff', params={'filmId': film_id})
-        return json.loads(response.content)
-    except (KinopoiskApiError, json.JSONDecodeError) as err:
+        return _decode_json_response(
+            response,
+            default_value=[],
+            event_name='fetch_film_staff_error'
+        )
+    except KinopoiskApiError as err:
         logger.error(
             'fetch_film_staff_error',
             extra={'film_id': film_id, 'error': str(err)}
@@ -112,8 +142,12 @@ def fetch_film_staff(film_id):
 def fetch_film_distributions(film_id):
     try:
         response = kinopoisk_get(f'/api/v2.2/films/{film_id}/distributions')
-        return json.loads(response.content)
-    except (KinopoiskApiError, json.JSONDecodeError) as err:
+        return _decode_json_response(
+            response,
+            default_value={},
+            event_name='fetch_film_distributions_error'
+        )
+    except KinopoiskApiError as err:
         logger.error(
             'fetch_film_distributions_error',
             extra={'film_id': film_id, 'error': str(err)}
@@ -127,8 +161,12 @@ def fetch_film_external_sources(film_id):
             f'/api/v2.2/films/{film_id}/external_sources',
             params={'page': 1},
         )
-        return json.loads(response.content)
-    except (KinopoiskApiError, json.JSONDecodeError) as err:
+        return _decode_json_response(
+            response,
+            default_value={},
+            event_name='fetch_film_external_sources_error'
+        )
+    except KinopoiskApiError as err:
         logger.error(
             'fetch_film_external_sources_error',
             extra={'film_id': film_id, 'error': str(err)}
