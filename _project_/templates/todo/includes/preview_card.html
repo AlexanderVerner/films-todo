@@ -1,0 +1,22 @@
+{% load todo_extras %}
+
+<div class="shop-item">
+  <div class="shop-item-image">
+    <img src="{{ movie.poster }}" alt="{{ movie.film }}" />
+    <div class="shop-item-detail">
+      <form method="post" action="{% url 'todo:save' movie.id_kinopoisk %}" style="display:inline;">
+        {% csrf_token %}
+        <button class="btn btn-round btn-b" type="submit">
+          <span class="icon-clock"> Add to watch later</span>
+        </button>
+      </form>
+    </div>
+  </div>
+  <h4 class="shop-item-title">{{ movie.film }}</h4>
+  <div class="shop-item-meta">
+    {{ movie.year }} | Rating KP: {{ movie.rating_kp|format_rating }}
+  </div>
+  <div class="shop-item-description">
+    {{ movie.description }}
+  </div>
+</div>

@@ -16,21 +16,9 @@
     <hr class="divider-w">
     <section class="module-small">
       <div class="container">
-        <div class="row multi-columns-row">
+        <div class="movies-grid movies-grid--cols-4">
             {% for item in movies %}
-          <div class="col-sm-6 col-md-3 col-lg-3">
-            <div class="shop-item">
-              <div class="shop-item-image card-img-top"><img src="{{ item.poster }}" alt="{{ item.film }}"/>
-                <div class="shop-item-detail">
-                  <form method="post" action="{% url 'todo:save' item.id_kinopoisk %}" style="display:inline;">
-                    {% csrf_token %}
-                    <button class="btn btn-round btn-b" type="submit"><span class="icon-clock"> Add to watch later</span></button>
-                  </form>
-                </div>
-              </div>
-                <h4 class="shop-item-title"><div class="text-truncate">{{ item.description }}</div></h4>{{ item.year }} | Rating KP: {{ item.rating_kp|format_rating }}
-            </div>
-          </div>
+                {% include 'todo/includes/preview_card.html' with movie=item %}
             {% endfor %}
         </div>
       </div>
