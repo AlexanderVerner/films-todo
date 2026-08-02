@@ -59,32 +59,10 @@
 {#                      </div>#}
 {#                    </div>#}
 {#                </div>#}
-                <div class="row multi-columns-row post-columns">
-                    <form action="{% url "todo:index" %}" method="get">
-{#                    <ul id="film-filter">#}
-                        {% for item in note_list %}
-                            <div class="col-sm-6 col-md-4 col-lg-4">
-                                <div class="post">
-                                    <div class="post-thumbnail index-img-top"><a href="/detail/{{ item.id }}"><img
-                                            src="{{ item.movie.poster }}" alt="{{ item.movie.title }}"/></a></div>
-                                    <div class="post-header font-alt">
-                                        <h2 class="post-title"><a
-                                                href="/detail/{{ item.id }}">{{ item.movie.title }}</a></h2>
-                                        <div class="post-meta">Add {{ item.created.date }}&nbsp;|
-                                            Year: {{ item.movie.year }} | Rating
-                                            KP: {{ item.movie.rating_kinopoisk|format_rating }}</div>
-                                    </div>
-                                    <div class="post-entry text-truncate">
-                                        <p>{{ item.movie.description }}</p>
-                                    </div>
-                                    <div class="post-more"><a class="more-link" href="/detail/{{ item.id }}">Detail
-                                        about note</a></div>
-                                </div>
-                            </div>
-{#                            </li>#}
-                        {% endfor %}
-{#                    </ul>#}
-                    </form>
+                <div class="movies-grid">
+                    {% for item in note_list %}
+                        {% include 'todo/includes/movie_card.html' with note=item %}
+                    {% endfor %}
                 </div>
             </div>
         {% endif %}

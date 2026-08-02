@@ -1,0 +1,24 @@
+{% load todo_extras %}
+
+<div class="movie-card">
+  <div class="movie-card-thumbnail">
+    <a href="{% url 'todo:detail' note.id %}">
+      <img src="{{ note.movie.poster }}" alt="{{ note.movie.title }}" />
+    </a>
+  </div>
+  <div class="movie-card-body">
+    <h3 class="movie-card-title">
+      <a href="{% url 'todo:detail' note.id %}">{{ note.movie.title }}</a>
+    </h3>
+    <div class="movie-card-meta">
+      Added {{ note.created.date }} | Year: {{ note.movie.year }} | 
+      Rating KP: {{ note.movie.rating_kinopoisk|format_rating }}
+    </div>
+    <div class="movie-card-description">
+      <p>{{ note.movie.description }}</p>
+    </div>
+    <div class="movie-card-link">
+      <a href="{% url 'todo:detail' note.id %}" class="more-link">Details</a>
+    </div>
+  </div>
+</div>
