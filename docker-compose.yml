@@ -44,9 +44,19 @@ services:
       SERVICE_5432_NAME: postgresdb
       POSTGRES_DB: film_todo
       POSTGRES_USER: film_todo
-    image: postgres:13-alpine
+    image: postgres:16-alpine
     volumes:
     - psgrdata:/var/lib/postgresql/data:rw
+    networks:
+      - default
+
+  redis:
+    container_name: redis
+    image: redis:7-alpine
+    environment:
+      SERVICE_6379_NAME: redis
+    ports:
+      - 6379:6379
     networks:
       - default
 

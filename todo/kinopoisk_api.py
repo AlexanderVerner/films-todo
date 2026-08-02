@@ -3,6 +3,7 @@ import logging
 from datetime import datetime
 
 import requests
+from django.core.cache import cache
 from envjson import env_str
 
 NO_POSTER = 'https://i.ibb.co/sbw3sB7/no-poster.png'
@@ -10,6 +11,9 @@ NO_POSTER = 'https://i.ibb.co/sbw3sB7/no-poster.png'
 API_ERROR_MESSAGE = 'Please, check your configuration.'
 
 logger = logging.getLogger(__name__)
+
+SEARCH_CACHE_TTL = 6 * 3600
+DETAIL_CACHE_TTL = 24 * 3600
 
 
 class KinopoiskApiError(Exception):
@@ -79,49 +83,54 @@ def search_films(keyword, limit):
     Raises:
         KinopoiskApiError: If the request fails or the response is malformed.
     """
-    try:
-        response = kinopoisk_get(
-            '/api/v2.1/films/search-by-keyword',
-            params={'keyword': keyword, 'page': 1},
-        )
-        payload = json.loads(response.content)
-    except (KinopoiskApiError, json.JSONDecodeError) as err:
-        logger.error(
-            'search_films_error',
-            extra={'keyword': keyword, 'error': str(err)}
-        )
-        raise KinopoiskApiError(API_ERROR_MESSAGE) from err
-    if not isinstance(payload, dict):
-        logger.error(
-            'search_films_error',
-            extra={'keyword': keyword, 'error': f'unexpected payload type {type(payload).__name__}'}
-        )
-        raise KinopoiskApiError(API_ERROR_MESSAGE)
-    films = payload.get('films') or []
-    content = []
-    for item in films[: int(limit)]:
-        description = item.get('description')
-        year_raw = item.get('year')
+    cache_key = f'film_search:{keyword}:{limit}'
+    
+    def _fetch():
         try:
-            year = int(year_raw) if year_raw is not None else None
-        except (TypeError, ValueError):
-            year = None
-        if description is None or not year:
-            continue
-        rating_raw = item.get('rating')
-        try:
-            rating_kp = float(rating_raw) if rating_raw not in (None, '') else None
-        except (TypeError, ValueError):
-            rating_kp = None
-        content.append({
-            'film': item.get('nameRu') or item.get('nameEn'),
-            'year': year,
-            'description': description,
-            'poster': item.get('posterUrlPreview') or item.get('posterUrl') or NO_POSTER,
-            'id_kinopoisk': item.get('filmId'),
-            'rating_kp': rating_kp,
-        })
-    return content
+            response = kinopoisk_get(
+                '/api/v2.1/films/search-by-keyword',
+                params={'keyword': keyword, 'page': 1},
+            )
+            payload = json.loads(response.content)
+        except (KinopoiskApiError, json.JSONDecodeError) as err:
+            logger.error(
+                'search_films_error',
+                extra={'keyword': keyword, 'error': str(err)}
+            )
+            raise KinopoiskApiError(API_ERROR_MESSAGE) from err
+        if not isinstance(payload, dict):
+            logger.error(
+                'search_films_error',
+                extra={'keyword': keyword, 'error': f'unexpected payload type {type(payload).__name__}'}
+            )
+            raise KinopoiskApiError(API_ERROR_MESSAGE)
+        films = payload.get('films') or []
+        content = []
+        for item in films[: int(limit)]:
+            description = item.get('description')
+            year_raw = item.get('year')
+            try:
+                year = int(year_raw) if year_raw is not None else None
+            except (TypeError, ValueError):
+                year = None
+            if description is None or not year:
+                continue
+            rating_raw = item.get('rating')
+            try:
+                rating_kp = float(rating_raw) if rating_raw not in (None, '') else None
+            except (TypeError, ValueError):
+                rating_kp = None
+            content.append({
+                'film': item.get('nameRu') or item.get('nameEn'),
+                'year': year,
+                'description': description,
+                'poster': item.get('posterUrlPreview') or item.get('posterUrl') or NO_POSTER,
+                'id_kinopoisk': item.get('filmId'),
+                'rating_kp': rating_kp,
+            })
+        return content
+    
+    return cache.get_or_set(cache_key, _fetch, SEARCH_CACHE_TTL)
 
 
 def fetch_film_details(film_id):
@@ -277,35 +286,40 @@ def build_film_detail(film_id):
         KinopoiskApiError: If fetching the film details fails (propagated
             from `fetch_film_details`).
     """
-    movie = fetch_film_details(film_id)
+    cache_key = f'film_detail:{film_id}'
+    
+    def _fetch():
+        movie = fetch_film_details(film_id)
 
-    staff = fetch_film_staff(film_id)
-    distributions = fetch_film_distributions(film_id)
-    external_sources = fetch_film_external_sources(film_id)
-    premiere_world, premiere_russia = premiere_dates_from_distributions(distributions)
+        staff = fetch_film_staff(film_id)
+        distributions = fetch_film_distributions(film_id)
+        external_sources = fetch_film_external_sources(film_id)
+        premiere_world, premiere_russia = premiere_dates_from_distributions(distributions)
 
-    actors = staff_by_profession(staff, 'ACTOR', 15)
-    directors = staff_by_profession(staff, 'DIRECTOR', 5)
+        actors = staff_by_profession(staff, 'ACTOR', 15)
+        directors = staff_by_profession(staff, 'DIRECTOR', 5)
 
-    return {
-        'id_kinopoisk': movie.get('kinopoiskId'),
-        'film': movie.get('nameRu'),
-        'film_alternative': movie.get('nameEn') or movie.get('nameOriginal'),
-        'type': movie.get('type'),
-        'year': movie.get('year'),
-        'slogan': movie.get('slogan'),
-        'description': movie.get('description'),
-        'genres': [genre.get('genre') for genre in (movie.get('genres') or [])],
-        'age_rating': parse_age_rating(movie.get('ratingAgeLimits')),
-        'countries': [country.get('country') for country in (movie.get('countries') or [])],
-        'poster': movie.get('posterUrlPreview') or movie.get('posterUrl'),
-        'rating_kp': movie.get('ratingKinopoisk'),
-        'rating_imdb': movie.get('ratingImdb'),
-        'votes_kp': movie.get('ratingKinopoiskVoteCount'),
-        'votes_imdb': movie.get('ratingImdbVoteCount'),
-        'premiere_world': premiere_world,
-        'premiere_russia': premiere_russia,
-        'watchability': watchability_from_external_sources(external_sources),
-        'actors': actors,
-        'directors': directors,
-    }
+        return {
+            'id_kinopoisk': movie.get('kinopoiskId'),
+            'film': movie.get('nameRu'),
+            'film_alternative': movie.get('nameEn') or movie.get('nameOriginal'),
+            'type': movie.get('type'),
+            'year': movie.get('year'),
+            'slogan': movie.get('slogan'),
+            'description': movie.get('description'),
+            'genres': [genre.get('genre') for genre in (movie.get('genres') or [])],
+            'age_rating': parse_age_rating(movie.get('ratingAgeLimits')),
+            'countries': [country.get('country') for country in (movie.get('countries') or [])],
+            'poster': movie.get('posterUrlPreview') or movie.get('posterUrl'),
+            'rating_kp': movie.get('ratingKinopoisk'),
+            'rating_imdb': movie.get('ratingImdb'),
+            'votes_kp': movie.get('ratingKinopoiskVoteCount'),
+            'votes_imdb': movie.get('ratingImdbVoteCount'),
+            'premiere_world': premiere_world,
+            'premiere_russia': premiere_russia,
+            'watchability': watchability_from_external_sources(external_sources),
+            'actors': actors,
+            'directors': directors,
+        }
+    
+    return cache.get_or_set(cache_key, _fetch, DETAIL_CACHE_TTL)
