@@ -16,9 +16,9 @@
     <hr class="divider-w">
     <section class="module-small">
       <div class="container">
-        <div class="row">
+        <div class="movie-cards-row movie-cards-row--4">
             {% for item in movies %}
-                <div class="col-xs-12 col-sm-6 col-md-3">
+                <div class="movie-cards-cell">
                     {% include 'todo/includes/preview_card.html' with movie=item %}
                 </div>
             {% endfor %}

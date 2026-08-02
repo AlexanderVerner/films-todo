@@ -2480,6 +2480,48 @@ Google map
 /*--------------------------------------------------------------
 	Shop Items
 --------------------------------------------------------------*/
+/* Movie cards grid — replaces Bootstrap float cols to avoid gaps */
+.movie-cards-row {
+  display: grid;
+  gap: 30px;
+  width: 100%;
+}
+
+.movie-cards-row--3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.movie-cards-row--4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.movie-cards-cell {
+  min-width: 0;
+}
+
+@media (max-width: 991px) {
+  .movie-cards-row--3,
+  .movie-cards-row--4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 25px;
+  }
+}
+
+@media (max-width: 575px) {
+  .movie-cards-row--3,
+  .movie-cards-row--4 {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+  }
+}
+
+.movie-cards-row .shop-item {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  margin-bottom: 0;
+}
+
 .shop-item {
   text-align: center;
   margin: 0 0 30px;
@@ -2565,8 +2607,16 @@ Google map
   overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
+  max-height: 50px;
+  word-break: break-word;
+}
+
+.movie-cards-row .shop-item-description {
+  flex-shrink: 0;
   height: 50px;
+  max-height: 50px;
 }
 
 /* Shop item hover */

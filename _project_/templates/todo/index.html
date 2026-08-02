@@ -59,9 +59,9 @@
 {#                      </div>#}
 {#                    </div>#}
 {#                </div>#}
-                <div class="row">
+                <div class="movie-cards-row movie-cards-row--3">
                     {% for item in note_list %}
-                        <div class="col-xs-12 col-sm-6 col-md-4">
+                        <div class="movie-cards-cell">
                             {% include 'todo/includes/movie_card.html' with note=item %}
                         </div>
                     {% endfor %}
