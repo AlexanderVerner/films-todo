@@ -2483,6 +2483,9 @@ Google map
 .shop-item {
   text-align: center;
   margin: 0 0 40px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .shop-item-image {
@@ -2490,6 +2493,7 @@ Google map
   overflow: hidden;
   aspect-ratio: 3 / 4;
   background: #f5f5f5;
+  min-height: 300px;
 }
 
 .shop-item-image img {
