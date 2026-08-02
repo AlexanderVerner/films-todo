@@ -2229,24 +2229,21 @@ Google map
   padding-left: 5px;
 }
 
-/* Movies Grid - Flexbox layout */
+/* Movies Grid - CSS Grid layout for 3 columns */
 .movies-grid {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 30px;
-  align-items: stretch;
-  margin: 0 -15px;
+  margin: 0;
 }
 
 .movie-card {
   display: flex;
   flex-direction: column;
-  flex: 0 0 calc(33.333% - 30px);
-  min-width: 280px;
-  margin: 0 15px;
   background: #fff;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: box-shadow 0.3s ease;
+  height: 100%;
 }
 
 .movie-card:hover {
@@ -2331,26 +2328,23 @@ Google map
 
 /* Responsive breakpoints */
 @media (max-width: 1200px) {
-  .movie-card {
-    flex: 0 0 calc(50% - 30px);
+  .movies-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px;
   }
 }
 
 @media (max-width: 768px) {
-  .movie-card {
-    flex: 0 0 calc(50% - 30px);
+  .movies-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
   }
 }
 
 @media (max-width: 576px) {
-  .movie-card {
-    flex: 0 0 100%;
-    margin: 0 15px;
-  }
-  
   .movies-grid {
+    grid-template-columns: 1fr;
     gap: 20px;
-    margin: 0 -15px;
   }
 }
 
