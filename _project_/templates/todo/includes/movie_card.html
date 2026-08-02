@@ -1,7 +1,7 @@
 {% load todo_extras %}
 
 <div class="shop-item">
-  <div class="shop-item-image card-img-top">
+  <div class="shop-item-image">
     <img src="{{ note.movie.poster }}" alt="{{ note.movie.title }}" />
     <div class="shop-item-detail">
       <a href="{% url 'todo:detail' note.id %}" class="btn btn-round btn-b">
@@ -19,3 +19,4 @@
     {{ note.movie.description }}
   </div>
 </div>
+
