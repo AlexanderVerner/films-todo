@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "af6eac2c733b5019df16aca7fe13a7c542db7187aab3fcf20b13eee41b967ba5"
+            "sha256": "08c3e0e3c12134246b3ef0d15f650a08c3db60ce98659dd465b8554d4178c781"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -165,6 +165,15 @@
             ],
             "markers": "python_version >= '3.10'",
             "version": "==3.4.0"
+        },
+        "django-redis": {
+            "hashes": [
+                "sha256:6a02abaa34b0fea8bf9b707d2c363ab6adc7409950b2db93602e6cb292818c42",
+                "sha256:ebc88df7da810732e2af9987f7f426c96204bf89319df4c6da6ca9a2942edd5b"
+            ],
+            "index": "pypi",
+            "markers": "python_version >= '3.6'",
+            "version": "==5.4.0"
         },
         "djangorestframework": {
             "hashes": [
@@ -395,6 +404,14 @@
             ],
             "index": "pypi",
             "version": "==2026.3.post1"
+        },
+        "redis": {
+            "hashes": [
+                "sha256:6e1a19beef9225c83efd689c7e6b7da2d5215b1f42cd13b7fc3714d0a09c7b25",
+                "sha256:a4fe1aac3d3b3cc791d4b3d5931c5a956045dc951ee74d1c913ee3ac4d2ee9fb"
+            ],
+            "markers": "python_version >= '3.10'",
+            "version": "==8.1.0"
         },
         "requests": {
             "hashes": [
