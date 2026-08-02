@@ -10,11 +10,12 @@
     </div>
   </div>
   <h4 class="shop-item-title">
-    <div class="text-truncate">
-      <a href="{% url 'todo:detail' note.id %}">{{ note.movie.title }}</a>
-    </div>
+    <a href="{% url 'todo:detail' note.id %}">{{ note.movie.title }}</a>
   </h4>
   <div class="shop-item-meta">
     {{ note.movie.year }} | Rating KP: {{ note.movie.rating_kinopoisk|format_rating }}
+  </div>
+  <div class="shop-item-description">
+    {{ note.movie.description }}
   </div>
 </div>
