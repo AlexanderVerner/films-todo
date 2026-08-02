@@ -29,7 +29,7 @@ Go-пайплайн (`go build`, `main.go`, `internal/handler/...`) и не пр
 ## Очередь
 
 ### Фича 1 — Сетка фильмов на главной (баг)
-- [ ] feature-001 — Починить сетку карточек фильмов + вынести переиспользуемую карточку (05-refactor, Haiku thinking, ~$0.15)
+- [x] feature-001 — Починить сетку карточек фильмов + вынести переиспользуемую карточку (05-refactor, Haiku thinking, ~$0.15) ✅ 2026-08-02
 
 ### Фича 2 — Красивая авторизация
 - [ ] feature-002 — Подключить свои URL/настройки авторизации вместо admin:login (04-create-architecture, Sonnet, ~$0.30)
@@ -43,11 +43,11 @@ Go-пайплайн (`go build`, `main.go`, `internal/handler/...`) и не пр
 - [ ] feature-006 — Поле review + валидация рейтинга 1-10 в модели Note + миграция (05-refactor, Haiku thinking, ~$0.15)
 - [ ] feature-007 — Форма отзыва + view отметки Seen/Un-seen (04-create-architecture, Sonnet, ~$0.35)
 - [ ] feature-008 — Починить разметку Add Review + интерактивные 10 звёзд (04-create-architecture, Sonnet, ~$0.35)
-- [ ] feature-009 — Рендер оценки пользователя звёздами, скрыт пока фильм не оценён (05-refactor, Haiku thinking, ~$0.15)
+- [ ] feature-009 — Рендер оценки пользователя звёздами, скрыт пока не оценён (05-refactor, Haiku thinking, ~$0.15)
 
 ### Фича 5 — Раздел Seen
 - [ ] feature-010 — Убрать просмотренные фильмы со списка Watch later (03-fix-simple-bug, Haiku, ~$0.03)
 - [ ] feature-011 — Страница Seen: список, сортировка, фильтр по жанру, навбар (04-create-architecture, Sonnet, ~$0.35)
 
 ## Выполнено
-(пусто)
+- [x] feature-001 — Починить сетку карточек фильмов + вынести переиспользуемую карточку (05-refactor) ✅ 2026-08-02
