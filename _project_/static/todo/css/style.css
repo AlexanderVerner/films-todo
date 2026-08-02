@@ -2229,6 +2229,20 @@ Google map
   padding-left: 5px;
 }
 
+/* Multi-columns row clearfix for proper grid alignment */
+.multi-columns-row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-left: -15px;
+  margin-right: -15px;
+}
+
+.multi-columns-row > [class*='col-'] {
+  padding-left: 15px;
+  padding-right: 15px;
+  display: flex;
+}
+
 .pagination a {
   border: 1px solid #eaeaea;
   display: inline-block;
