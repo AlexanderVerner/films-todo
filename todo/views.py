@@ -4,7 +4,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import TemplateView, View
 from django.http import HttpResponse
 from todo.forms import SearchForm
-from todo.kinopoisk_api import build_film_detail, search_films
+from todo.kinopoisk_api import build_film_detail, search_films, KinopoiskApiError
 from todo.models import Note, Movie
 from todo.serializers import movie_defaults_from_detail
 
@@ -30,6 +30,14 @@ def get_detail_film(id_kinopoisk):
     return build_film_detail(id_kinopoisk)
 
 
+def render_api_error(request):
+    return HttpResponse(
+        render(request, 'todo/error.html', {'message': 'Please, check your configuration.'}).content,
+        status=503,
+        content_type='text/html'
+    )
+
+
 class IndexView(TemplateView):
     template_name = 'todo/index.html'
 
@@ -50,14 +58,10 @@ class PreView(TemplateView):
     def post(self, request, *args, **kwargs):
         try:
             content = get_preview_content(request)
-            if isinstance(content, dict) and 'message' in content:
-                logger.warning('preview_error', extra={'message': content.get('message')})
-                return HttpResponse(
-                    render(request, 'todo/error.html', content).content,
-                    status=503,
-                    content_type='text/html'
-                )
             return render(request, 'todo/preview.html', {'movies': content})
+        except KinopoiskApiError as err:
+            logger.warning('preview_error', extra={'message': str(err)})
+            return render_api_error(request)
         except Exception as err:
             logger.error('preview_exception', extra={'error': str(err)})
             raise
@@ -77,13 +81,6 @@ class SaveView(View):
         try:
             user = get_object_or_404(User, pk=1)
             content = get_detail_film(kwargs.get('id_kinopoisk'))
-            if 'message' in content:
-                logger.warning('save_error', extra={'id_kinopoisk': kwargs.get('id_kinopoisk'), 'message': content.get('message')})
-                return HttpResponse(
-                    render(request, 'todo/error.html', content).content,
-                    status=503,
-                    content_type='text/html'
-                )
             entry_film, _ = Movie.objects.update_or_create(
                 id_kinopoisk=content.get('id_kinopoisk'),
                 defaults=movie_defaults_from_detail(content)
@@ -91,6 +88,9 @@ class SaveView(View):
             Note.objects.update_or_create(user=user, movie=entry_film)
             logger.info('film_saved', extra={'id_kinopoisk': content.get('id_kinopoisk'), 'title': content.get('film')})
             return redirect('todo:index')
+        except KinopoiskApiError as err:
+            logger.warning('save_error', extra={'id_kinopoisk': kwargs.get('id_kinopoisk'), 'message': str(err)})
+            return render_api_error(request)
         except Exception as err:
             logger.error('save_exception', extra={'error': str(err), 'id_kinopoisk': kwargs.get('id_kinopoisk')})
             raise

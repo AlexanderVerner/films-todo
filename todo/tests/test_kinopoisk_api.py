@@ -110,6 +110,35 @@ class KinopoiskApiMappingTests(TestCase):
         self.assertEqual(detail['actors'], ['Actor / Actor En'])
         self.assertEqual(detail['directors'], ['Director / Dir En'])
 
+    @patch('todo.kinopoisk_api.fetch_film_external_sources', return_value={'items': []})
+    @patch('todo.kinopoisk_api.fetch_film_distributions', return_value={'items': []})
+    @patch('todo.kinopoisk_api.fetch_film_staff', return_value=[])
+    @patch('todo.kinopoisk_api.fetch_film_details')
+    def test_build_film_detail_accepts_payload_with_message_field(
+        self,
+        mock_details,
+        _mock_staff,
+        _mock_distributions,
+        _mock_external,
+    ):
+        """A `message` key in a successful payload is regular data, not an error."""
+        mock_details.return_value = {
+            'kinopoiskId': 409424,
+            'nameRu': 'Дюна',
+            'message': 'some field the API happens to return',
+        }
+
+        detail = build_film_detail(409424)
+        self.assertEqual(detail['id_kinopoisk'], 409424)
+        self.assertEqual(detail['film'], 'Дюна')
+
+    @patch('todo.kinopoisk_api.fetch_film_details')
+    def test_build_film_detail_propagates_api_error(self, mock_details):
+        mock_details.side_effect = KinopoiskApiError('Please, check your configuration.')
+
+        with self.assertRaises(KinopoiskApiError):
+            build_film_detail(409424)
+
     @patch('todo.kinopoisk_api.requests.get')
     def test_kinopoisk_get_handles_connection_error(self, mock_get):
         mock_get.side_effect = requests.ConnectionError('Connection failed')
@@ -148,23 +177,66 @@ class KinopoiskApiMappingTests(TestCase):
             status_code=200,
             content=b'invalid json {',
         )
-        
-        result = search_films('test', 15)
-        self.assertEqual(result, {'message': 'Please, check your configuration.'})
+
+        with self.assertRaises(KinopoiskApiError) as ctx:
+            search_films('test', 15)
+        self.assertEqual(str(ctx.exception), 'Please, check your configuration.')
 
     @patch('todo.kinopoisk_api.kinopoisk_get')
     def test_search_films_handles_api_error(self, mock_get):
         mock_get.side_effect = KinopoiskApiError('API Error')
-        
-        result = search_films('test', 15)
-        self.assertEqual(result, {'message': 'Please, check your configuration.'})
+
+        with self.assertRaises(KinopoiskApiError) as ctx:
+            search_films('test', 15)
+        self.assertEqual(str(ctx.exception), 'Please, check your configuration.')
+
+    @patch('todo.kinopoisk_api.kinopoisk_get')
+    def test_search_films_rejects_non_object_payload(self, mock_get):
+        mock_get.return_value = MagicMock(
+            status_code=200,
+            content=json.dumps([1, 2, 3]).encode(),
+        )
+
+        with self.assertRaises(KinopoiskApiError) as ctx:
+            search_films('test', 15)
+        self.assertEqual(str(ctx.exception), 'Please, check your configuration.')
+
+    @patch('todo.kinopoisk_api.kinopoisk_get')
+    def test_search_films_returns_list_on_empty_results(self, mock_get):
+        mock_get.return_value = MagicMock(
+            status_code=200,
+            content=json.dumps({'films': []}).encode(),
+        )
+
+        self.assertEqual(search_films('nothing', 15), [])
 
     @patch('todo.kinopoisk_api.kinopoisk_get')
     def test_fetch_film_details_handles_api_error(self, mock_get):
         mock_get.side_effect = KinopoiskApiError('API Error')
-        
-        result = fetch_film_details(409424)
-        self.assertEqual(result, {'message': 'Please, check your configuration.'})
+
+        with self.assertRaises(KinopoiskApiError) as ctx:
+            fetch_film_details(409424)
+        self.assertEqual(str(ctx.exception), 'Please, check your configuration.')
+
+    @patch('todo.kinopoisk_api.kinopoisk_get')
+    def test_fetch_film_details_handles_malformed_json(self, mock_get):
+        mock_get.return_value = MagicMock(
+            status_code=200,
+            content=b'invalid json {',
+        )
+
+        with self.assertRaises(KinopoiskApiError):
+            fetch_film_details(409424)
+
+    @patch('todo.kinopoisk_api.kinopoisk_get')
+    def test_fetch_film_details_rejects_non_object_payload(self, mock_get):
+        mock_get.return_value = MagicMock(
+            status_code=200,
+            content=json.dumps([1, 2, 3]).encode(),
+        )
+
+        with self.assertRaises(KinopoiskApiError):
+            fetch_film_details(409424)
 
     @patch('todo.kinopoisk_api.kinopoisk_get')
     def test_fetch_film_staff_handles_api_error(self, mock_get):
@@ -172,6 +244,15 @@ class KinopoiskApiMappingTests(TestCase):
         
         result = fetch_film_staff(409424)
         self.assertEqual(result, [])
+
+    @patch('todo.kinopoisk_api.kinopoisk_get')
+    def test_fetch_film_staff_returns_list_on_unexpected_payload(self, mock_get):
+        mock_get.return_value = MagicMock(
+            status_code=200,
+            content=json.dumps({'unexpected': 'shape'}).encode(),
+        )
+
+        self.assertEqual(fetch_film_staff(409424), [])
 
     @patch('todo.kinopoisk_api.kinopoisk_get')
     def test_fetch_film_distributions_handles_api_error(self, mock_get):

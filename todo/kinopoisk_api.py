@@ -7,6 +7,8 @@ from envjson import env_str
 
 NO_POSTER = 'https://i.ibb.co/sbw3sB7/no-poster.png'
 
+API_ERROR_MESSAGE = 'Please, check your configuration.'
+
 logger = logging.getLogger(__name__)
 
 
@@ -69,18 +71,33 @@ def _decode_json_response(response, default_value=None, event_name=None):
 
 
 def search_films(keyword, limit):
+    """Search films by keyword.
+
+    Returns:
+        list: Mapped film results (may be empty).
+
+    Raises:
+        KinopoiskApiError: If the request fails or the response is malformed.
+    """
     try:
         response = kinopoisk_get(
             '/api/v2.1/films/search-by-keyword',
             params={'keyword': keyword, 'page': 1},
         )
-        films = json.loads(response.content).get('films') or []
+        payload = json.loads(response.content)
     except (KinopoiskApiError, json.JSONDecodeError) as err:
         logger.error(
             'search_films_error',
             extra={'keyword': keyword, 'error': str(err)}
         )
-        return {'message': 'Please, check your configuration.'}
+        raise KinopoiskApiError(API_ERROR_MESSAGE) from err
+    if not isinstance(payload, dict):
+        logger.error(
+            'search_films_error',
+            extra={'keyword': keyword, 'error': f'unexpected payload type {type(payload).__name__}'}
+        )
+        raise KinopoiskApiError(API_ERROR_MESSAGE)
+    films = payload.get('films') or []
     content = []
     for item in films[: int(limit)]:
         description = item.get('description')
@@ -108,29 +125,46 @@ def search_films(keyword, limit):
 
 
 def fetch_film_details(film_id):
+    """Fetch film details by id.
+
+    Returns:
+        dict: Raw film details payload.
+
+    Raises:
+        KinopoiskApiError: If the request fails or the response is malformed.
+    """
     try:
         response = kinopoisk_get(f'/api/v2.2/films/{film_id}')
-        return _decode_json_response(
-            response,
-            default_value={'message': 'Please, check your configuration.'},
-            event_name='fetch_film_details_error'
-        )
     except KinopoiskApiError as err:
         logger.error(
             'fetch_film_details_error',
             extra={'film_id': film_id, 'error': str(err)}
         )
-        return {'message': 'Please, check your configuration.'}
+        raise KinopoiskApiError(API_ERROR_MESSAGE) from err
+    content = _decode_json_response(
+        response,
+        default_value=None,
+        event_name='fetch_film_details_error'
+    )
+    if not isinstance(content, dict):
+        raise KinopoiskApiError(API_ERROR_MESSAGE)
+    return content
 
 
 def fetch_film_staff(film_id):
+    """Fetch the staff list for a film.
+
+    Staff is supplementary data, so failures degrade to an empty list
+    instead of propagating: the caller always gets a list.
+    """
     try:
         response = kinopoisk_get('/api/v1/staff', params={'filmId': film_id})
-        return _decode_json_response(
+        staff = _decode_json_response(
             response,
             default_value=[],
             event_name='fetch_film_staff_error'
         )
+        return staff if isinstance(staff, list) else []
     except KinopoiskApiError as err:
         logger.error(
             'fetch_film_staff_error',
@@ -140,13 +174,19 @@ def fetch_film_staff(film_id):
 
 
 def fetch_film_distributions(film_id):
+    """Fetch distribution (premiere) data for a film.
+
+    Distributions are supplementary data, so failures degrade to an empty
+    dict instead of propagating: the caller always gets a dict.
+    """
     try:
         response = kinopoisk_get(f'/api/v2.2/films/{film_id}/distributions')
-        return _decode_json_response(
+        distributions = _decode_json_response(
             response,
             default_value={},
             event_name='fetch_film_distributions_error'
         )
+        return distributions if isinstance(distributions, dict) else {}
     except KinopoiskApiError as err:
         logger.error(
             'fetch_film_distributions_error',
@@ -156,16 +196,22 @@ def fetch_film_distributions(film_id):
 
 
 def fetch_film_external_sources(film_id):
+    """Fetch watchability sources for a film.
+
+    External sources are supplementary data, so failures degrade to an
+    empty dict instead of propagating: the caller always gets a dict.
+    """
     try:
         response = kinopoisk_get(
             f'/api/v2.2/films/{film_id}/external_sources',
             params={'page': 1},
         )
-        return _decode_json_response(
+        external_sources = _decode_json_response(
             response,
             default_value={},
             event_name='fetch_film_external_sources_error'
         )
+        return external_sources if isinstance(external_sources, dict) else {}
     except KinopoiskApiError as err:
         logger.error(
             'fetch_film_external_sources_error',
@@ -225,9 +271,13 @@ def staff_by_profession(staff, profession_key, limit):
 
 
 def build_film_detail(film_id):
+    """Build a normalized film detail dict.
+
+    Raises:
+        KinopoiskApiError: If fetching the film details fails (propagated
+            from `fetch_film_details`).
+    """
     movie = fetch_film_details(film_id)
-    if 'message' in movie:
-        return movie
 
     staff = fetch_film_staff(film_id)
     distributions = fetch_film_distributions(film_id)

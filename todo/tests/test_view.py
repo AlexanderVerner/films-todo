@@ -3,6 +3,7 @@ from unittest.mock import patch
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
+from todo.kinopoisk_api import KinopoiskApiError
 from todo.models import Movie
 
 
@@ -29,7 +30,7 @@ DUNE_DETAIL = {
     'directors': [],
 }
 
-API_ERROR = {'message': 'Please, check your configuration.'}
+API_ERROR = KinopoiskApiError('Please, check your configuration.')
 
 
 class IndexViewTests(TestCase):
@@ -55,8 +56,8 @@ class PreViewTests(TestCase):
 
     @patch('todo.views.get_preview_content')
     def test_preview_api_error_returns_503(self, mock_search):
-        """PreView.post should return 503 on API error"""
-        mock_search.return_value = API_ERROR
+        """PreView.post should return 503 when the API layer raises"""
+        mock_search.side_effect = API_ERROR
         r = self.client.post(reverse('todo:preview'), {'title': 'dune'})
         self.assertEqual(r.status_code, 503)
         self.assertIn(b'Please, check your configuration', r.content)
@@ -78,8 +79,9 @@ class SaveViewTests(TestCase):
 
     @patch('todo.views.get_detail_film')
     def test_save_api_error_returns_503(self, mock_detail):
-        """SaveView.post should return 503 on API error"""
-        mock_detail.return_value = API_ERROR
+        """SaveView.post should return 503 when the API layer raises"""
+        mock_detail.side_effect = API_ERROR
         r = self.client.post(reverse('todo:save', kwargs={'id_kinopoisk': 409424}))
         self.assertEqual(r.status_code, 503)
         self.assertIn(b'Please, check your configuration', r.content)
+        self.assertFalse(Movie.objects.filter(id_kinopoisk=409424).exists())
